@@ -1,0 +1,868 @@
+				;file E:\Doing\啟德電子\DriveHT1635Led\source\main.c
+				;1	//___________________________________________________________________
+				;2	//___________________________________________________________________
+				;3	//Copyright :    2015 by HOLTEK SEMICONDUCTOR INC
+				;4	//File Name :    MAIN.C
+				;5	//Targer :       
+				;6	//MCU :          HT68F40
+				;7	//Version :      V00
+				;8	//Author :       ChenTing
+				;9	//Date :         2015/05/18
+				;10	//Description :  MAIN function
+				;11	//History : 
+				;12	//___________________________________________________________________
+				;13	//___________________________________________________________________
+				;14	/*#include "HT68F40.h"*/
+				;15	#include "config.h"
+				;16	
+				;17	
+				;18	unsigned char poweron = 0;
+0012	0900	ret     a, 0H
+				;19	unsigned char flag_10ms = 0;
+				@ROMDATA_BASE .SECTION 'CODE'
+				@ROMDATA_BASE .SECTION 'CODE'
+0011	0900	ret     a, 0H
+				;20	
+				;21	void main()
+				;22	{
+				@code .SECTION 'CODE'
+				include HT68F40.inc
+0000	2801	jmp     _main_startup
+				startupend1:
+				@start .SECTION 'CODE'
+000F	2814	jmp     _main
+				;23		if (_to == 0 || _pdf ==0)
+				_main:
+				_main:
+0014	3A8A	snz     TO
+0015	2818	jmp     _L2
+0016	070A	mov     a, STATUS
+0017	4084	mov     ra, a
+				;24		{
+				;25	//		ram_init();
+				;26	//		sys_init();
+				;27	//		poweron_init();
+				;28		}
+				;29		else
+				;30		{	
+				;31	//		reset_init();
+				;32		}
+				;33		init_led();
+				_L2:
+0018	2151	call    _init_led
+				;34		updateDisplayHello();
+0019	2074	call    _updateDisplayHello
+				;35		while(1)
+				;36		{
+				;37			if (flag_10ms==1)
+				_L5:
+001A	5701	sdza    flag_10ms[0]
+001B	281D	jmp     _L6
+001C	281E	jmp     _L3
+				_L6:
+				_LI1:
+001D	281D	jmp     $
+				;38			{
+				;39				fun_scan_key();
+				_L3:
+001E	20C8	call    _fun_scan_key
+001F	281A	jmp     _L5
+0020	2820	jmp     $
+				;40			}
+				;41		}		
+				;42	
+				;43	}
+				;file E:\Doing\啟德電子\DriveHT1635Led\startup1.asm
+				;1	;;--------------------------------------------------------------;;
+				;2	;;    This file is part of the Holtek C Compiler V3 package     ;;
+				;3	;;    For the initialization of static linkage variables        ;;
+				;4	;;    Copyright (C) 2013 Holtek Semiconductor Inc.              ;;
+				;5	;;    Version: 1.01 (Above IDE3000 V7.72)                       ;;
+				;6	;;    Date:    2013/10/24                                        ;;
+				;7	;;--------------------------------------------------------------;;
+				;8	
+				;9	acc equ [05h]
+				;10	mp equ [01h]
+				;11	iar equ [00h]
+				;12	bp equ [04h]
+				;13	z equ [0ah].2
+				;14	c equ [0ah].0
+				;15	public _main_startup
+				;16	@start   .SECTION 'CODE'
+				;17	_main_startup:
+				;18	 ;;	CLR WDT2    ;;PD,TO flag will be clear. This line can be removed if a small number of global variables in C program are used.
+				;19		Mov a, offset __initial_value_end
+				_main_startup:
+				@start .SECTION 'CODE'
+				_main_startup1:
+				@start .SECTION 'CODE'
+0001	0F84	mov     a, 84H
+				;20		dec acc
+0002	1585	dec     ACC
+				;21		MOV mp,A
+0003	0081	mov     MP0, a
+				;22		clr c
+0004	340A	clr     C
+				;23		Sub a, offset __initial_value_begin
+0005	0A81	sub     a, 81H
+				;24		snz c
+0006	380A	snz     C
+				;25		jmp startupend1
+0007	280F	jmp     startupend1
+				;26	L0004:
+				;27		mov ra,a
+				L0004:
+0008	4084	mov     ra, a
+				;28		CALL romdata_base1
+0009	2010	call    romdata_base1
+				;29		MOV iar,A
+000A	0080	mov     [00H], a
+				;30		dec mp
+000B	1581	dec     MP0
+				;31	  ;;	CLR WDT   ;;PD,TO flag will be clear. This line can be removed if a small number of global variables in C program are used.
+				;32		deca ra
+000C	5504	deca    ra
+				;33		sz ra
+000D	5084	sz      ra
+				;34		jmp L0004 
+000E	2808	jmp     L0004
+				;35	startupend1:
+				;36	  ;;	CLR WDT2  ;;PD,TO flag will be clear. This line can be removed if a small number of global variables in C program are used.
+				;37	ROMBANK 0 @ROMDATA_BASE 
+				;38	@ROMDATA_BASE .SECTION  inpage com_l 'CODE'
+				;39	romdata_base1:
+				;40		ADDM A,[06H]
+				romdata_base1:
+				@ROMDATA_BASE .SECTION 'CODE'
+0010	0386	addm    a, PCL
+				;41	
+				;42	@HCCINIT   .SECTION  COM_L 'DATA'
+				;43	__initial_value_begin:
+				;44	@HCCINIT  .SECTION COM_E 'DATA'
+				;45	__initial_value_end:
+				;46	extern ra:byte
+				;file E:\Doing\啟德電子\DriveHT1635Led\source\LedDisplay.c
+				;1	//___________________________________________________________________
+				;2	//___________________________________________________________________
+				;3	//Copyright :    2015 by HOLTEK SEMICONDUCTOR INC
+				;4	//File Name :    LedDisplay.c
+				;5	//Targer :       
+				;6	//MCU :          HT64F40
+				;7	//Version :      V00
+				;8	//Author :       ChenTing
+				;9	//Date :         2015/05/18
+				;10	//Description :  ledDisplay function
+				;11	//History : 
+				;12	//___________________________________________________________________
+				;13	//___________________________________________________________________
+				;14	#include "LedDisplay.h"
+				;15	#include "IIC.h"
+				;16	
+				;17	unsigned char counter =0;
+				@ROMDATA_BASE .SECTION 'CODE'
+0013	0900	ret     a, 0H
+				;18	
+				;19	
+				;20	/***********************
+				;21	上電對led1 & led2 初始化
+				;22	
+				;23	**********/
+				;24	
+				;25	const unsigned char	LedDisplayHell0Table[]={
+				L0100:
+0100	0386	addm    a, PCL
+0101	0908	ret     a, 8H
+0102	0920	ret     a, 20H
+0103	09F8	ret     a, F8H
+0104	093F	ret     a, 3FH
+0105	0908	ret     a, 8H
+0106	0921	ret     a, 21H
+0107	0900	ret     a, 0H
+0108	0901	ret     a, 1H
+0109	0900	ret     a, 0H
+010A	0901	ret     a, 1H
+010B	0908	ret     a, 8H
+010C	0921	ret     a, 21H
+010D	09F8	ret     a, F8H
+010E	093F	ret     a, 3FH
+010F	0908	ret     a, 8H
+0110	0920	ret     a, 20H
+0111	0900	ret     a, 0H
+0112	0900	ret     a, 0H
+0113	0900	ret     a, 0H
+0114	091F	ret     a, 1FH
+0115	0980	ret     a, 80H
+0116	0922	ret     a, 22H
+0117	0980	ret     a, 80H
+0118	0922	ret     a, 22H
+0119	0980	ret     a, 80H
+011A	0922	ret     a, 22H
+011B	0980	ret     a, 80H
+011C	0922	ret     a, 22H
+011D	0900	ret     a, 0H
+011E	0913	ret     a, 13H
+011F	0900	ret     a, 0H
+0120	0900	ret     a, 0H
+0121	0900	ret     a, 0H
+0122	0900	ret     a, 0H
+0123	0908	ret     a, 8H
+0124	0920	ret     a, 20H
+0125	0908	ret     a, 8H
+0126	0920	ret     a, 20H
+0127	09F8	ret     a, F8H
+0128	093F	ret     a, 3FH
+0129	0900	ret     a, 0H
+012A	0920	ret     a, 20H
+012B	0900	ret     a, 0H
+012C	0920	ret     a, 20H
+012D	0900	ret     a, 0H
+012E	0900	ret     a, 0H
+012F	0900	ret     a, 0H
+0130	0900	ret     a, 0H
+0131	0900	ret     a, 0H
+0132	0900	ret     a, 0H
+0133	0908	ret     a, 8H
+0134	0920	ret     a, 20H
+0135	0908	ret     a, 8H
+0136	0920	ret     a, 20H
+0137	09F8	ret     a, F8H
+0138	093F	ret     a, 3FH
+0139	0900	ret     a, 0H
+013A	0920	ret     a, 20H
+013B	0900	ret     a, 0H
+013C	0920	ret     a, 20H
+013D	0900	ret     a, 0H
+013E	0900	ret     a, 0H
+013F	0900	ret     a, 0H
+0140	0900	ret     a, 0H
+0141	0900	ret     a, 0H
+0142	0900	ret     a, 0H
+0143	0900	ret     a, 0H
+0144	091F	ret     a, 1FH
+0145	0980	ret     a, 80H
+0146	0920	ret     a, 20H
+0147	0980	ret     a, 80H
+0148	0920	ret     a, 20H
+0149	0980	ret     a, 80H
+014A	0920	ret     a, 20H
+014B	0980	ret     a, 80H
+014C	0920	ret     a, 20H
+014D	0900	ret     a, 0H
+014E	091F	ret     a, 1FH
+014F	0900	ret     a, 0H
+0150	0900	ret     a, 0H
+				;26	0x08,0x20,0xF8,0x3F,0x08,0x21,0x00,0x01,
+				;27	0x00,0x01,0x08,0x21,0xF8,0x3F,0x08,0x20,/*"H",0*/
+				;28	0x00,0x00,0x00,0x1F,0x80,0x22,0x80,0x22,
+				;29	0x80,0x22,0x80,0x22,0x00,0x13,0x00,0x00,/*"e",1*/
+				;30	0x00,0x00,0x08,0x20,0x08,0x20,0xF8,0x3F,
+				;31	0x00,0x20,0x00,0x20,0x00,0x00,0x00,0x00,/*"l",2*/
+				;32	0x00,0x00,0x08,0x20,0x08,0x20,0xF8,0x3F,
+				;33	0x00,0x20,0x00,0x20,0x00,0x00,0x00,0x00,/*"l",3*/
+				;34	0x00,0x00,0x00,0x1F,0x80,0x20,0x80,0x20,
+				;35	0x80,0x20,0x80,0x20,0x00,0x1F,0x00,0x00/*"o",4*/
+				;36	};
+				;37	
+				;38	void init_led(void){
+				;39		//init HT1635B 1 
+				;40		iicSendCommand(SLAVEMCU1ADD, SYS_SET_COMMAND,SYS_LED_DEFAULT1);
+				_init_led:
+				_init_led:
+0151	0F03	mov     a, 3H
+0152	4088	mov     commandData, a
+0153	0F82	mov     a, 82H
+0154	4087	mov     command, a
+0155	0FD0	mov     a, D0H
+0156	205C	call    _iicSendCommand
+				;41		iicSendCommand(SLAVEMCU1ADD,BLINK_FRQ_COMMAND,BLINK_DEFAULT1);
+0157	0F03	mov     a, 3H
+0158	4088	mov     commandData, a
+0159	0F84	mov     a, 84H
+015A	4087	mov     command, a
+015B	0FD0	mov     a, D0H
+015C	205C	call    _iicSendCommand
+				;42		iicSendCommand(SLAVEMCU1ADD,DRIVE_OUT_COMMAMND,DRIVE_TYPE_DEFAULT1);
+015D	5F08	clr     commandData
+015E	0F88	mov     a, 88H
+015F	4087	mov     command, a
+0160	0FD0	mov     a, D0H
+0161	205C	call    _iicSendCommand
+				;43		iicSendCommand(SLAVEMCU1ADD,CASCADE_COMMAND,CASCADE_DEFAULT1);
+0162	0F04	mov     a, 4H
+0163	4088	mov     commandData, a
+0164	0FA0	mov     a, A0H
+0165	4087	mov     command, a
+0166	0FD0	mov     a, D0H
+0167	205C	call    _iicSendCommand
+				;44		iicSendCommand(SLAVEMCU1ADD,PWM_DUTY_COMMAND,PWM_DUTY_DEFAULT1);
+0168	5F08	clr     commandData
+0169	0FC0	mov     a, C0H
+016A	4087	mov     command, a
+016B	0FD0	mov     a, D0H
+016C	205C	call    _iicSendCommand
+				;45		//init HT1635B 2
+				;46		iicSendCommand(SLAVEMCU2ADD, SYS_SET_COMMAND,SYS_LED_DEFAULT2);
+016D	0F03	mov     a, 3H
+016E	4088	mov     commandData, a
+016F	0F82	mov     a, 82H
+0170	4087	mov     command, a
+0171	0FD4	mov     a, D4H
+0172	205C	call    _iicSendCommand
+				;47		iicSendCommand(SLAVEMCU2ADD,BLINK_FRQ_COMMAND,BLINK_DEFAULT2);
+0173	0F03	mov     a, 3H
+0174	4088	mov     commandData, a
+0175	0F84	mov     a, 84H
+0176	4087	mov     command, a
+0177	0FD4	mov     a, D4H
+0178	205C	call    _iicSendCommand
+				;48		iicSendCommand(SLAVEMCU2ADD,DRIVE_OUT_COMMAMND,DRIVE_TYPE_DEFAULT2);
+0179	5F08	clr     commandData
+017A	0F88	mov     a, 88H
+017B	4087	mov     command, a
+017C	0FD4	mov     a, D4H
+017D	205C	call    _iicSendCommand
+				;49		iicSendCommand(SLAVEMCU2ADD,CASCADE_COMMAND,CASCADE_DEFAULT2);
+017E	0F04	mov     a, 4H
+017F	4088	mov     commandData, a
+0180	0FA0	mov     a, A0H
+0181	4087	mov     command, a
+0182	0FD4	mov     a, D4H
+0183	205C	call    _iicSendCommand
+				;50		iicSendCommand(SLAVEMCU2ADD,PWM_DUTY_COMMAND,PWM_DUTY_DEFAULT2);
+0184	5F08	clr     commandData
+0185	0FC0	mov     a, C0H
+0186	4087	mov     command, a
+0187	0FD4	mov     a, D4H
+0188	205C	call    _iicSendCommand
+				;51	
+				;52		//power on Display hello
+				;53		updateDisplayHello();	
+0189	2074	call    _updateDisplayHello
+018A	0003	ret
+				;54	}
+				;55	/***********************
+				;56	閃爍mode
+				;57	利用MCU內部的Blink mode
+				;58	**********/
+				;59	void updateDisplayBlink2s(void){
+				;60		updateDisplayAll();
+				;61		iicSendCommand(SLAVEMCU1ADD,BLINK_FRQ_COMMAND,BLINK_0_5HZ);
+				;62		iicSendCommand(SLAVEMCU2ADD,BLINK_FRQ_COMMAND,BLINK_0_5HZ);
+				;63	}
+				;64	/***********************
+				;65	顯示hello
+				;66	
+				;67	**********/
+				;68	void updateDisplayHello(void){
+				;69		//update HT1635B 1 data
+				;70		iicStart();
+				_updateDisplayHello:
+				_updateDisplayHello:
+0074	202A	call    _iicStart
+				;71		iicWrite(SLAVEMCU1ADD);
+0075	0FD0	mov     a, D0H
+0076	204D	call    _iicWrite
+				;72		while(TestAck());
+				_L3:
+0077	2040	call    _TestAck
+0078	4084	mov     ra, a
+0079	5084	sz      ra
+007A	2877	jmp     _L3
+				;73		iicWrite(SEND_DATA_COMMAND);
+007B	0F80	mov     a, 80H
+007C	204D	call    _iicWrite
+				;74		while(TestAck());
+				_L5:
+007D	2040	call    _TestAck
+007E	4084	mov     ra, a
+007F	5084	sz      ra
+0080	287D	jmp     _L5
+				;75		iicWrite(0X00);
+0081	0F00	mov     a, 0H
+0082	204D	call    _iicWrite
+				;76		while(TestAck());
+				_L7:
+0083	2040	call    _TestAck
+0084	4084	mov     ra, a
+0085	5084	sz      ra
+0086	2883	jmp     _L7
+				;77		for (counter=0; counter < 80; counter=counter+2)
+0087	5F03	clr     counter[0]
+				_L8:
+0088	4703	mov     a, counter[0]
+0089	4084	mov     ra, a
+008A	0F4F	mov     a, 4FH
+008B	4204	sub     a, ra
+008C	380A	snz     C
+008D	289D	jmp     _L23
+009A	0F02	mov     a, 2H
+009B	4383	addm    a, counter[0]
+009C	2888	jmp     _L8
+				;78		{
+				;79			iicWrite(LedDisplayHell0Table[counter]);
+008E	0F00	mov     a, 0H
+008F	4304	add     a, ra
+0090	0083	mov     MP1, a
+0091	0F80	mov     a, 80H
+0092	1F07	clr     TBLP
+0093	1387	adcm    a, TBLP
+0094	20DB	call    L00DB
+0095	204D	call    _iicWrite
+				;80			while(TestAck());
+				_L10:
+0096	2040	call    _TestAck
+0097	4084	mov     ra, a
+0098	5084	sz      ra
+0099	2896	jmp     _L10
+				;81		}
+				;82		//update HT1635B 2 data
+				;83		iicStart();
+				_L23:
+009D	202A	call    _iicStart
+				;84		iicWrite(SLAVEMCU2ADD);
+009E	0FD4	mov     a, D4H
+009F	204D	call    _iicWrite
+				;85		while(TestAck());
+				_L13:
+00A0	2040	call    _TestAck
+00A1	4084	mov     ra, a
+00A2	5084	sz      ra
+00A3	28A0	jmp     _L13
+				;86		iicWrite(SEND_DATA_COMMAND);
+00A4	0F80	mov     a, 80H
+00A5	204D	call    _iicWrite
+				;87		while(TestAck());
+				_L15:
+00A6	2040	call    _TestAck
+00A7	4084	mov     ra, a
+00A8	5084	sz      ra
+00A9	28A6	jmp     _L15
+				;88		iicWrite(0X00);
+00AA	0F00	mov     a, 0H
+00AB	204D	call    _iicWrite
+				;89		while(TestAck());
+				_L17:
+00AC	2040	call    _TestAck
+00AD	4084	mov     ra, a
+00AE	5084	sz      ra
+00AF	28AC	jmp     _L17
+				;90		for (counter = 1; counter < 80; counter=counter+2)
+00B0	0F01	mov     a, 1H
+00B1	4083	mov     counter[0], a
+00B2	28C1	jmp     _L18
+00BF	0F02	mov     a, 2H
+00C0	4383	addm    a, counter[0]
+				_L18:
+00C1	4703	mov     a, counter[0]
+00C2	4084	mov     ra, a
+00C3	0F4F	mov     a, 4FH
+00C4	4204	sub     a, ra
+00C5	3C0A	sz      C
+00C6	28B3	jmp     _L21
+00C7	0003	ret
+				;91		{
+				;92			iicWrite(LedDisplayHell0Table[counter]);
+				_L21:
+00B3	0F00	mov     a, 0H
+00B4	4304	add     a, ra
+00B5	0083	mov     MP1, a
+00B6	0F80	mov     a, 80H
+00B7	1F07	clr     TBLP
+00B8	1387	adcm    a, TBLP
+00B9	20DB	call    L00DB
+00BA	204D	call    _iicWrite
+				;93			while(TestAck());
+				_L20:
+00BB	2040	call    _TestAck
+00BC	4084	mov     ra, a
+00BD	5084	sz      ra
+00BE	28BB	jmp     _L20
+				;94		}
+				;95	}
+				;96	/***********************
+				;97	全亮
+				;98	**********/
+				;99	void updateDisplayAll(void){
+				;100		//Display all HT1635B 1
+				;101		iicStart();
+				;102		iicWrite(SLAVEMCU1ADD);
+				;103		while(TestAck());
+				;104		iicWrite(SEND_DATA_COMMAND);
+				;105		while(TestAck());
+				;106		iicWrite(0X00);
+				;107		while(TestAck());
+				;108		for (counter = 0; counter < 80; counter=counter+2)
+				;109		{
+				;110			iicWrite(0Xff);
+				;111			while(TestAck());
+				;112		}
+				;113		//Display all HT1635B 2
+				;114		iicStart();
+				;115		iicWrite(SLAVEMCU2ADD);
+				;116		while(TestAck());
+				;117		iicWrite(SEND_DATA_COMMAND);
+				;118		while(TestAck());
+				;119		iicWrite(0X00);
+				;120		while(TestAck());
+				;121		for (counter = 0; counter < 80; counter=counter+2)
+				;122		{
+				;123			iicWrite(0Xff);
+				;124			while(TestAck());
+				;125		}
+				;126		iicStop();
+				;127	}
+				;128	/***********************
+				;129	全滅
+				;130	
+				;131	**********/
+				;132	void updateDisplayoff(void){
+				;133		//Display off HT1635B 1
+				;134		iicStart();
+				;135		iicWrite(SLAVEMCU1ADD);
+				;136		while(TestAck());
+				;137		iicWrite(SEND_DATA_COMMAND);
+				;138		while(TestAck());
+				;139		iicWrite(0X00);
+				;140		while(TestAck());
+				;141		for (counter = 0; counter < 80; counter=counter+2)
+				;142		{
+				;143			iicWrite(0X00);
+				;144			while(TestAck());
+				;145		}
+				;146		//Display off HT1635B 2
+				;147		iicStart();
+				;148		iicWrite(SLAVEMCU1ADD);
+				;149		while(TestAck());
+				;150		iicWrite(SEND_DATA_COMMAND);
+				;151		while(TestAck());
+				;152		iicWrite(0X00);
+				;153		while(TestAck());
+				;154		for (counter = 0; counter < 80; counter=counter+2)
+				;155		{
+				;156			iicWrite(0X00);
+				;157			while(TestAck());
+				;158		}
+				;159	}
+				;160	
+				;161	
+				;162	
+				;file E:\Doing\啟德電子\DriveHT1635Led\source\IIC.c
+				;1	//___________________________________________________________________
+				;2	//___________________________________________________________________
+				;3	//Copyright :    2015 by HOLTEK SEMICONDUCTOR INC
+				;4	//File Name :    IIC.C
+				;5	//Targer :       
+				;6	//MCU :          HT64F50
+				;7	//Version :      V00
+				;8	//Author :       ChenTing
+				;9	//Date :         2015/05/18
+				;10	//Description :  IIC function
+				;11	//History : 
+				;12	//___________________________________________________________________
+				;13	//___________________________________________________________________
+				;14	#include "IIC.h"
+				;15	
+				;16	
+				;17	
+				;18	/**********************************
+				;19	IIC設置命令發送程序
+				;20	**********************************/
+				;21	void iicSendCommand(unsigned char address, unsigned char command,unsigned char commandData)
+				;22	{
+				_iicSendCommand:
+				_iicSendCommand:
+005C	4089	mov     address[0], a
+				;23		iicStart();
+005D	202A	call    _iicStart
+				;24		iicWrite(address);
+005E	4709	mov     a, address[0]
+005F	204D	call    _iicWrite
+				;25		while(TestAck());
+				L0060:
+0060	2040	call    _TestAck
+0061	4084	mov     ra, a
+0062	5084	sz      ra
+0063	2860	jmp     L0060
+				;26		iicWrite(command);
+0064	4707	mov     a, command[0]
+0065	204D	call    _iicWrite
+				;27		while(TestAck());
+				L0066:
+0066	2040	call    _TestAck
+0067	4084	mov     ra, a
+0068	5084	sz      ra
+0069	2866	jmp     L0066
+				;28		iicWrite(commandData);
+006A	4708	mov     a, commandData[0]
+006B	4084	mov     ra, a
+006C	4704	mov     a, ra
+006D	204D	call    _iicWrite
+				;29		while(TestAck());
+				L006E:
+006E	2040	call    _TestAck
+006F	4084	mov     ra, a
+0070	5084	sz      ra
+0071	286E	jmp     L006E
+				;30		iicStop();
+0072	2035	call    _iicStop
+0073	0003	ret
+				;31	}
+				;32	
+				;33	/**********************************
+				;34	I2C啟動信號
+				;35	**********************************/
+				;36	void iicStart(void)
+				;37	{
+				;38		SDAC=0;//設定SDA腳為輸出
+				_iicStart:
+				_iicStart:
+002A	341B	clr     PAC0
+				;39		SCLC=0;//速度SCL腳為輸出
+002B	349B	clr     PAC1
+				;40		SDA=1;_delay();//SDA=1
+002C	301A	set     PA0
+002D	2021	call    __delay
+				;41		SCL=1;_delay();//SCL=1
+002E	309A	set     PA1
+002F	2021	call    __delay
+				;42		SDA=0;_delay();//SDA=0
+0030	341A	clr     PA0
+0031	2021	call    __delay
+				;43		SCL=0;_delay();//SCL=0	
+0032	349A	clr     PA1
+0033	2021	call    __delay
+0034	0003	ret
+				;44	}
+				;45	
+				;46	/**********************************
+				;47	I2C停止信號
+				;48	**********************************/
+				;49	void iicStop(void)
+				;50	{
+				;51		SDAC=0;//設定SDA腳為輸出
+				_iicStop:
+				_iicStop:
+0035	341B	clr     PAC0
+				;52		SCLC=0;//速度SCL腳為輸出
+0036	349B	clr     PAC1
+				;53		SDA=0;_delay();//SDA=0
+0037	341A	clr     PA0
+0038	2021	call    __delay
+				;54		SCL=1;_delay();//SCL=1
+0039	309A	set     PA1
+003A	2021	call    __delay
+				;55		SDA=1;_delay();//SDA=1
+003B	301A	set     PA0
+003C	2021	call    __delay
+				;56		SCL=0;_delay();//SCL=0
+003D	349A	clr     PA1
+003E	2021	call    __delay
+003F	0003	ret
+				;57			
+				;58	}
+				;59	//**********************************
+				;60	//ACK(0)信號信號，通知從幾已讀取資料
+				;61	//或后面還有資料
+				;62	//**********************************
+				;63	void Ack(void)
+				;64	{
+				;65		SDAC=0;//設定SDA腳為輸出
+				;66		SCLC=0;//速度SCL腳為輸出
+				;67		SDA=0;_delay();//SDA=0
+				;68		SCL=1;_delay();//SCL=1
+				;69		SCL=0;_delay();//SCL=0
+				;70		SDA=1;_delay();//SDA=1
+				;71	}
+				;72	//**********************************
+				;73	//NoAck(1)信號信號，通知從幾無資料讀取
+				;74	//**********************************
+				;75	void NoAck(void)
+				;76	{
+				;77		SDAC=0;//設定SDA腳為輸出
+				;78		SCLC=0;//速度SCL腳為輸出
+				;79		SDA=1;_delay();//SDA=1
+				;80		SCL=1;_delay();//SCL=1
+				;81		SCL=0;_delay();//SCL=0
+				;82	}
+				;83	//**********************************
+				;84	//主機檢查從幾回傳的ACK信號
+				;85	//0為ACK完成動作，1為未完成動作
+				;86	//**********************************
+				;87	unsigned char TestAck(void)
+				;88	{	
+				;89		unsigned char Ack_Bit;//定義ack位元
+				;90		SDAC=1;//設定SDA腳為輸入
+				_TestAck:
+				_TestAck:
+0040	301B	set     PAC0
+				;91		SCLC=0;//速度SCL腳為輸出
+0041	349B	clr     PAC1
+				;92		//SDA=1;_delay();//SDA=1
+				;93		SCL=1;_delay();//SCL=1
+0042	309A	set     PA1
+0043	2021	call    __delay
+				;94		Ack_Bit=SDA;_delay();//讀取回傳確認ACK
+0044	071A	mov     a, PA
+0045	0E01	and     a, 1H
+0046	4085	mov     Data, a
+0047	2021	call    __delay
+				;95		SCL=0;_delay();//SCL=0
+0048	349A	clr     PA1
+0049	2021	call    __delay
+				;96		SDAC=0;
+004A	341B	clr     PAC0
+				;97		return Ack_Bit;
+				;98	}
+004B	4705	mov     a, Data
+004C	0003	ret
+				;99	//**********************************
+				;100	//主機將資料以串列方式發射出去
+				;101	//**********************************
+				;102	void iicWrite(unsigned char Data)
+				;103	{
+				_iicWrite:
+				_iicWrite:
+004D	4085	mov     Data[0], a
+				;104		unsigned char count=8;
+				;105		SDAC=0;//設定SDA腳為輸出
+004E	341B	clr     PAC0
+				;106		SCLC=0;//速度SCL腳為輸出
+004F	349B	clr     PAC1
+				;107		while(count--)
+0050	0F09	mov     a, 9H
+0051	4086	mov     Data[1], a
+0052	2859	jmp     L0059
+				;108		{
+				;109			SDA=(Data & 0x80);//取出資料的bit7送到SDA腳
+				L0053:
+0053	341A	clr     PA0
+				;110			_delay();
+0054	2021	call    __delay
+				;111			SCL=1;_delay();//送出i2c時鐘脈沖
+0055	309A	set     PA1
+0056	2021	call    __delay
+				;112			SCL=0;_delay();
+0057	349A	clr     PA1
+0058	2021	call    __delay
+				L0059:
+0059	5786	sdz     Data[1]
+005A	2853	jmp     L0053
+005B	0003	ret
+				;113			Data=Data<<1;//資料左移一位
+				;114		}
+				;115	}
+				;116	//**********************************
+				;117	//主機讀取資料
+				;118	//**********************************
+				;119	unsigned char iicRead(void)
+				;120	{
+				;121		unsigned char count=8,Data=0;
+				;122		SDAC=1;//設定SDA腳為輸入
+				;123		SCLC=0;//速度SCL腳為輸出
+				;124		while(count--)
+				;125		{
+				;126			SCL=1;_delay();
+				;127			Data=Data<<1;//資料左移一位
+				;128			Data=Data|((unsigned char)(SDA));//讀取串bit與Data合并
+				;129			SCL=0;
+				;130		}	
+				;131		return(Data);
+				;132	}
+				;133	void _delay(void){
+				;134		GCC_NOP();
+				__delay:
+				__delay:
+				@dummy .SECTION 'CODE'
+0021	0000	nop
+				;135		GCC_NOP();
+0022	0000	nop
+				;136		GCC_NOP();
+0023	0000	nop
+				;137		GCC_NOP();
+0024	0000	nop
+				;138		GCC_NOP();
+0025	0000	nop
+				;139		GCC_CLRWDT();
+0026	0001	clr     wdt
+				;140		GCC_CLRWDT1();
+0027	0001	clr     wdt
+				;141		GCC_CLRWDT2();
+0028	0005	clr     wdt2
+0029	0003	ret
+				;142	}
+				;143	
+				;144	
+				;145	
+				;146	
+				;file E:\Doing\啟德電子\DriveHT1635Led\source\funscankey.c
+				;1	#include "funscankey.h"
+				;2	
+				;3	unsigned char keyCount;
+				;4	
+				;5	unsigned char fun_scan_key(void){
+				;6		KEYC=0;
+				_fun_scan_key:
+				_fun_scan_key:
+00C8	369B	clr     PAC5
+				;7		if (KEY==0)
+00C9	3E9A	sz      PA5
+00CA	28D6	jmp     _L2
+				;8		{
+				;9			keyCount++;
+00CB	5400	inca    keyCount[0]
+00CC	4084	mov     ra, a
+00CD	4704	mov     a, ra
+00CE	4080	mov     keyCount[0], a
+				;10			if(keyCount==5)
+00CF	4704	mov     a, ra
+00D0	0A05	sub     a, 5H
+00D1	390A	snz     Z
+00D2	28D8	jmp     _L1
+				;11			{
+				;12				return 1;
+00D3	0F01	mov     a, 1H
+00D4	4084	mov     ra, a
+00D5	28D8	jmp     _L1
+				;13			}
+				;14		}
+				;15		else
+				;16		{
+				;17			keyCount=0;
+				_L2:
+00D6	5F00	clr     keyCount[0]
+				;18			return 0;
+00D7	5F04	clr     ra
+				;19		}	
+				;20	}
+				_L1:
+00D8	4704	mov     a, ra
+00D9	0003	ret
+00DA	1483	inc     MP1
+				L00DB:
+00DB	3F87	sz      TBLP.7
+00DC	28E1	jmp     L00E1
+00DD	0707	mov     a, TBLP
+00DE	0084	mov     BP, a
+00DF	0702	mov     a, [02H]
+00E0	0003	ret
+				L00E1:
+00E1	0703	mov     a, MP1
+00E2	2900	jmp     L0100
+				org	0100h
+				;21	
+				;22	
+				;23	
+				;24	
+				data .SECTION 'DATA'
+				__status DB DUP (?) ; __status
+				__pa DB DUP (?) ; __pa
+				__pac DB DUP (?) ; __pac
+				keyCount DB DUP (?) ; keyCount
+				flag_10ms DB DUP (?) ; flag_10ms
+				poweron DB DUP (?) ; poweron
+				counter DB DUP (?) ; counter
+				ra DB DUP (?)
+				Data DB DUP (?) ; Data
+				command DB DUP (?) ; command
+				commandData DB DUP (?) ; commandData
+				address DB DUP (?) ; address

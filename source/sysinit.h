@@ -1,0 +1,26 @@
+//___________________________________________________________________
+//___________________________________________________________________
+//Copyright :    2015 by HOLTEK SEMICONDUCTOR INC
+//File Name :    sysinit.C
+//Targer :       
+//MCU :          HT68F40
+//Version :      V00
+//Author :       ChenTing
+//Date :         2015/05/18
+//Description :  config sysinit function
+//History : 
+//___________________________________________________________________
+//___________________________________________________________________
+#ifndef SYSINIT_H
+#define SYSINIT_H
+
+#define RambankMaxSector	4
+
+
+
+
+
+
+
+
+#endif

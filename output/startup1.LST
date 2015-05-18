@@ -1,0 +1,52 @@
+"File: startup1.asm  Assembler  Version HGASM0202      Page 1
+
+
+   1  0000              ;;--------------------------------------------------------------;;
+   2  0000              ;;    This file is part of the Holtek C Compiler V3 package     ;;
+   3  0000              ;;    For the initialization of static linkage variables        ;;
+   4  0000              ;;    Copyright (C) 2013 Holtek Semiconductor Inc.              ;;
+   5  0000              ;;    Version: 1.01 (Above IDE3000 V7.72)                       ;;
+   6  0000              ;;    Date:    2013/10/24                                        ;;
+   7  0000              ;;--------------------------------------------------------------;;
+   8  0000              
+   9  0000              acc equ [05h]
+  10  0000              mp equ [01h]
+  11  0000              iar equ [00h]
+  12  0000              bp equ [04h]
+  13  0000              z equ [0ah].2
+  14  0000              c equ [0ah].0
+  15  0000              public _main_startup
+  16  0000              @start   .SECTION 'CODE'
+  17  0000              _main_startup:
+  18  0000               ;;	CLR WDT2    ;;PD,TO flag will be clear. This line can be removed if a small number of global variables in C program are used.
+  19  0000  0F00     R  	Mov a, offset __initial_value_end
+  20  0001  1585        	dec acc
+  21  0002  0081        	MOV mp,A
+  22  0003  340A        	clr c
+  23  0004  0A00     R  	Sub a, offset __initial_value_begin
+  24  0005  380A        	snz c
+  25  0006  2800     R  	jmp startupend1
+  26  0007              L0004:
+  27  0007  0080     E  	mov ra,a
+  28  0008  2000     R  	CALL romdata_base1
+  29  0009  0080        	MOV iar,A
+  30  000A  1581        	dec mp
+  31  000B                ;;	CLR WDT   ;;PD,TO flag will be clear. This line can be removed if a small number of global variables in C program are used.
+  32  000B  1500     E  	deca ra
+  33  000C  1080     E  	sz ra
+  34  000D  2800     R  	jmp L0004 
+  35  000E              startupend1:
+  36  000E                ;;	CLR WDT2  ;;PD,TO flag will be clear. This line can be removed if a small number of global variables in C program are used.
+  37  000E              ROMBANK 0 @ROMDATA_BASE 
+  38  0000              @ROMDATA_BASE .SECTION  inpage com_l 'CODE'
+  39  0000              romdata_base1:
+  40  0000  0386        	ADDM A,[06H]
+  41  0001              
+  42  0000              @HCCINIT   .SECTION  COM_L 'DATA'
+  43  0000              __initial_value_begin:
+  44  0000              @HCCINIT  .SECTION COM_E 'DATA'
+  45  0000              __initial_value_end:
+  46  0000              extern ra:byte
+
+
+        0 Errors, 0
