@@ -8,6 +8,6 @@ extern	volatile			__byte_type 		flag_byte0;
 #define flag_keypush 		flag_byte0.bits.b0
 #define flag_3s		 		flag_byte0.bits.b1
 #define flag_10ms 			flag_byte0.bits.b2
-
+#define flag_1ms 			flag_byte0.bits.b3
 
 #endif

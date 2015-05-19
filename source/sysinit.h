@@ -14,7 +14,7 @@
 #ifndef _SYSINIT_H
 #define _SYSINIT_H
 
-#define RambankMaxSector	4
+#define RambankMaxSector	2
 
 void _clearRam(void);
 void _sysinit(void);

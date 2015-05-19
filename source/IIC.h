@@ -27,12 +27,12 @@ void _delay(void);
 
 
 
-#define SLAVEMCU1ADD 	0xD0
+#define SLAVEMCU1ADD 	0xD6
 #define SLAVEMCU2ADD	0xD4 
-#define SDA				_pa0
-#define SCL				_pa1
-#define SDAC			_pac0
-#define SCLC			_pac1
+#define SDA				_pa6
+#define SCL				_pa7
+#define SDAC			_pac6
+#define SCLC			_pac7
 
 
 #endif

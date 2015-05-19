@@ -16,24 +16,26 @@
 
 
 
-unsigned char counter10ms;
-unsigned int  counter3s;
+volatile unsigned char counter10ms;
+volatile unsigned int  counter3s;
 extern unsigned char  keyCount;
 
 void _clearRam(void){
-	_bp &= 0b11100000;
+	_bp = 0x00;
 	_mp1 = 0x80;
-	while((_bp & 0b00011111) <2)
-	{
 		for(_tblp = 0x00;_tblp < 128;_tblp++)
 		{
 			 _iar1 = 0;
 			  _mp1++;
 		}
-		_mp1 = 0x80;		
-		_bp++;
-	}
-
+	_bp = 0x01;
+	_mp1 = 0x80;		
+		for(_tblp = 0x00;_tblp < 64;_tblp++)
+		{
+			 _iar1 = 0;
+			  _mp1++;
+		}
+	_bp=0x00;
 	}
 
 void _reset_init(void){
@@ -73,33 +75,33 @@ void _sysinit(void){
 	_cp1c=0;	
 //Timer
 	_tm0c0=0x00;
-	_tm0c1=0xc0;
+	_tm0c1=0xc1;
 	_tm0al=0xe8;
 	_tm0ah=0x03;
 	_mf0f=0;
 	_mf0e=1;
-	_t0pe=1;
-	_t0pf=0;
+	_t0ae=1;
+	_t0af=0;
 	_emi=1;
 	_t0on=1;
 //Ram
 	counter10ms=10;
 	counter3s=300;
-	flag_10ms=0;
-	flag_keypush=0;
 	keyCount=0;
+	flag_byte0.byte=0;
 	}
 	
 DEFINE_ISR(timer0, 0x14){
+//	flag_1ms=1;
 	counter10ms--;
 	if(counter10ms==0){
 		flag_10ms=1;
-		counter10ms=10;
-		
+		counter10ms=10;	
 		counter3s--;
-		if(counter3s==0)
+		if(counter3s==0){
 			flag_3s=1;
 			counter3s=300;
 		}
-
-	}
+	}	
+	_t0af=0;
+}

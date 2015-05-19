@@ -7,8 +7,9 @@
 void fun_scan_key(void);
 void fun_task_key(void);
 
-#define KEY  _pa5
-#define KEYC _pac5
+#define KEY  _pa4
+#define KEYC _pac4
+#define KEYP _papu4
 
 
 

@@ -15,7 +15,7 @@
 #define _LEDDISPLAY_H
 
 void _init_led(void);
-void _updateDisplayBlink2s(void);
+void _updateDisplayBlink(void);
 void _updateDisplayHello(void);
 void _updateDisplayAll(void);
 void _updateDisplayoff(void);
@@ -24,8 +24,8 @@ void _updateDisplayNormal(void);
 #define displayState_Hello	0
 #define displayState_All	1
 #define displayState_Off	2
-#define displayState_Bink0	3	//HT1635  ÂÖßÈÉ®ÈñÉÁàç
-#define displayState_Bink1	4	//HT68F40 ÊéßÂà∂ÈñÉÁàçÊôÇÈñì
+#define displayState_Bink0	3	//HT1635  §∫≥°∞{√{
+#define displayState_Bink1	4	//HT68F40 ±±®Ó∞{√{Æ…∂°
 #define displayState_Normal 5
 #define BinkState_All		0
 #define BinkState_Off		1
@@ -45,14 +45,13 @@ void _updateDisplayNormal(void);
 #define BLINK_2HZ			0x01	
 #define BLINK_1HZ			0x02	
 #define BLINK_0_5HZ			0x03
-#define BLINK_DEFAULT1		BLINK_1HZ	
-#define BLINK_DEFAULT2		BLINK_1HZ	
+#define BLINK_DEFAULT		BLINK_OFF	
 //Drive config
 #define DRIVE_OUT_COMMAMND	0x88
 #define DRIVE_TYPE_NMOS		0x00	//power on status
 #define DRIVE_TYPE_PMOS		0x01
-#define DRIVE_TYPE_DEFAULT1	DRIVE_TYPE_NMOS
-#define DRIVE_TYPE_DEFAULT2	DRIVE_TYPE_NMOS
+#define DRIVE_TYPE_DEFAULT1	DRIVE_TYPE_PMOS
+#define DRIVE_TYPE_DEFAULT2	DRIVE_TYPE_PMOS
 //Cascade config
 #define CASCADE_COMMAND		0xA0
 #define MASTER_OSC_SINGLE 	0x04	//power on status
@@ -80,8 +79,8 @@ void _updateDisplayNormal(void);
 #define ROW_PULSE_14_16		0x0d
 #define ROW_PULSE_15_16		0x0e
 #define ROW_PULSE_16_16		0x0f	//power on status
-#define PWM_DUTY_DEFAULT1	ROW_PULSE_1_16
-#define PWM_DUTY_DEFAULT2	ROW_PULSE_1_16
+#define PWM_DUTY_DEFAULT1	ROW_PULSE_16_16
+#define PWM_DUTY_DEFAULT2	ROW_PULSE_16_16
 
 
 
