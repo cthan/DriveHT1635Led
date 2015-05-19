@@ -11,8 +11,7 @@
 //History : 
 //___________________________________________________________________
 //___________________________________________________________________
-#include "LedDisplay.h"
-#include "IIC.h"
+#include "config.h"
 
 unsigned char counter =0;
 
@@ -34,8 +33,24 @@ const unsigned char	LedDisplayHell0Table[]={
 0x00,0x00,0x00,0x1F,0x80,0x20,0x80,0x20,
 0x80,0x20,0x80,0x20,0x00,0x1F,0x00,0x00/*"o",4*/
 };
+const unsigned char LedDisplayNormalTable[]={
+0X00,0X00,0X00,0X00,
+0x00,0x00,0xF8,0x0F,0x80,0x00,0x80,0x00,
+0x80,0x00,0xF8,0x0F,/*"H",0*/
+0x00,0x00,0xF0,0x07,0x08,0x08,0x08,0x08,
+0x08,0x08,0xF0,0x07,/*"O",1*/
+0x00,0x00,0xF8,0x0F,0x00,0x08,0x00,0x08,
+0x00,0x08,0x00,0x08,/*"L",2*/
+0x00,0x00,0x08,0x00,0x08,0x00,0xF8,0x0F,
+0x08,0x00,0x08,0x00,/*"T",3*/
+0x00,0x00,0xF8,0x0F,0x88,0x08,0x88,0x08,
+0x88,0x08,0x08,0x08,/*"E",4*/
+0x00,0x00,0xF8,0x0F,0x80,0x00,0x60,0x03,
+0x18,0x0C,0x00,0x00,/*"K",5*/
+0X00,0X00,0X00,0X00
+};
 
-void init_led(void){
+void _init_led(void){
 	//init HT1635B 1 
 	iicSendCommand(SLAVEMCU1ADD, SYS_SET_COMMAND,SYS_LED_DEFAULT1);
 	iicSendCommand(SLAVEMCU1ADD,BLINK_FRQ_COMMAND,BLINK_DEFAULT1);
@@ -50,14 +65,14 @@ void init_led(void){
 	iicSendCommand(SLAVEMCU2ADD,PWM_DUTY_COMMAND,PWM_DUTY_DEFAULT2);
 
 	//power on Display hello
-	updateDisplayHello();	
+	_updateDisplayHello();	
 }
 /***********************
 閃爍mode
 利用MCU內部的Blink mode
 **********/
-void updateDisplayBlink2s(void){
-	updateDisplayAll();
+void _updateDisplayBlink2s(void){
+	_updateDisplayAll();
 	iicSendCommand(SLAVEMCU1ADD,BLINK_FRQ_COMMAND,BLINK_0_5HZ);
 	iicSendCommand(SLAVEMCU2ADD,BLINK_FRQ_COMMAND,BLINK_0_5HZ);
 }
@@ -65,7 +80,7 @@ void updateDisplayBlink2s(void){
 顯示hello
 
 **********/
-void updateDisplayHello(void){
+void _updateDisplayHello(void){
 	//update HT1635B 1 data
 	iicStart();
 	iicWrite(SLAVEMCU1ADD);
@@ -94,9 +109,41 @@ void updateDisplayHello(void){
 	}
 }
 /***********************
+顯示HOLTEK
+
+**********/
+void _updateDisplayNormal(void){
+	//update HT1635B 1 data
+	iicStart();
+	iicWrite(SLAVEMCU1ADD);
+	while(TestAck());
+	iicWrite(SEND_DATA_COMMAND);
+	while(TestAck());
+	iicWrite(0X00);
+	while(TestAck());
+	for (counter=0; counter < 80; counter=counter+2)
+	{
+		iicWrite(LedDisplayNormalTable[counter]);
+		while(TestAck());
+	}
+	//update HT1635B 2 data
+	iicStart();
+	iicWrite(SLAVEMCU2ADD);
+	while(TestAck());
+	iicWrite(SEND_DATA_COMMAND);
+	while(TestAck());
+	iicWrite(0X00);
+	while(TestAck());
+	for (counter = 1; counter < 80; counter=counter+2)
+	{
+		iicWrite(LedDisplayNormalTable[counter]);
+		while(TestAck());
+	}
+}
+/***********************
 全亮
 **********/
-void updateDisplayAll(void){
+void _updateDisplayAll(void){
 	//Display all HT1635B 1
 	iicStart();
 	iicWrite(SLAVEMCU1ADD);
@@ -129,7 +176,7 @@ void updateDisplayAll(void){
 全滅
 
 **********/
-void updateDisplayoff(void){
+void _updateDisplayoff(void){
 	//Display off HT1635B 1
 	iicStart();
 	iicWrite(SLAVEMCU1ADD);

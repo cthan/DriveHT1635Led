@@ -11,15 +11,24 @@
 //History : 
 //___________________________________________________________________
 //___________________________________________________________________
-#ifndef LEDDISPLAY_H_
-#define LEDDISPLAY_H_
+#ifndef _LEDDISPLAY_H
+#define _LEDDISPLAY_H
 
-void init_led(void);
-void updateDisplayBlink2s(void);
-void updateDisplayHello(void);
-void updateDisplayAll(void);
-void updateDisplayoff(void);
+void _init_led(void);
+void _updateDisplayBlink2s(void);
+void _updateDisplayHello(void);
+void _updateDisplayAll(void);
+void _updateDisplayoff(void);
+void _updateDisplayNormal(void);
 
+#define displayState_Hello	0
+#define displayState_All	1
+#define displayState_Off	2
+#define displayState_Bink0	3	//HT1635  內部閃爍
+#define displayState_Bink1	4	//HT68F40 控制閃爍時間
+#define displayState_Normal 5
+#define BinkState_All		0
+#define BinkState_Off		1
 
 #define SEND_DATA_COMMAND	0x80
 
@@ -36,8 +45,8 @@ void updateDisplayoff(void);
 #define BLINK_2HZ			0x01	
 #define BLINK_1HZ			0x02	
 #define BLINK_0_5HZ			0x03
-#define BLINK_DEFAULT1		BLINK_0_5HZ	
-#define BLINK_DEFAULT2		BLINK_0_5HZ	
+#define BLINK_DEFAULT1		BLINK_1HZ	
+#define BLINK_DEFAULT2		BLINK_1HZ	
 //Drive config
 #define DRIVE_OUT_COMMAMND	0x88
 #define DRIVE_TYPE_NMOS		0x00	//power on status

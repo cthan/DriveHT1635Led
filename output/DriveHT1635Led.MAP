@@ -6,6 +6,7 @@ Input Object File: E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ
 Input Object File: E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ
 Input Object File: E:\Doing\啟德電子\DriveHT1635Led\output\FUNSCANKEY.OBJ
 Input Object File: E:\Doing\啟德電子\DriveHT1635Led\output\STARTUP1.OBJ
+Input Object File: E:\Doing\啟德電子\DriveHT1635Led\output\VOLATILE.OBJ
 
 Input Library File: C:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB
 Input Library File: C:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\v3_mrsc.lib
@@ -14,107 +15,174 @@ Input Library File: C:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x
      Bank    Start     End      Length     Class    AvgIns    Name
      00h     0000h     0000h    0001h      CODE               @code (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
      00h     0001h     000fh    000fh      CODE               @start (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
-     00h     0010h     0013h    0004h      CODE               @ROMDATA_BASE (E:\Doing\啟德電子\DriveHT1635Led\output\STARTUP1.OBJ)
-     00h     0014h     0020h    000dh      CODE               _main (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
-     00h     0021h     0029h    0009h      CODE               __delay (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     002ah     0034h    000bh      CODE               _iicStart (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0035h     003fh    000bh      CODE               _iicStop (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0040h     004ch    000dh      CODE               _TestAck (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     004dh     005bh    000fh      CODE               _iicWrite (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     005ch     0073h    0018h      CODE               _iicSendCommand (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0074h     00c7h    0054h      CODE               _updateDisplayHello (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
-     00h     00c8h     00d9h    0012h      CODE               _fun_scan_key (E:\Doing\啟德電子\DriveHT1635Led\output\FUNSCANKEY.OBJ)
-     00h     00dah     00e2h    0009h      CODE               _CROM2PROM (CROM2PROM)
-     00h     0100h     0150h    0051h      CODE               @crom (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
-     00h     0151h     018ah    003ah      CODE               _init_led (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
-     00h     0080h     0080h    0001h      DATA     0         @HCCINIT0 (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
-     00h     0081h     0083h    0003h      DATA     0         @HCCINIT (E:\Doing\啟德電子\DriveHT1635Led\output\STARTUP1.OBJ)
-     00h     0084h     0084h    0001h      DATA     74        @data_ra (C:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     0010h     0011h    0002h      CODE               @ROMDATA_BASE (E:\Doing\啟德電子\DriveHT1635Led\output\STARTUP1.OBJ)
+     00h     0014h     0017h    0004h      CODE               @timer0_code (E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ)
+     00h     0018h     0052h    003bh      CODE               _main (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
+     00h     0053h     005bh    0009h      CODE               __delay (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     005ch     0066h    000bh      CODE               _iicStart (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     0067h     0071h    000bh      CODE               _iicStop (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     0072h     007eh    000dh      CODE               _TestAck (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     007fh     008dh    000fh      CODE               _iicWrite (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     008eh     00a5h    0018h      CODE               _iicSendCommand (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     00a6h     00f9h    0054h      CODE               __updateDisplayHello (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     0100h     01a0h    00a1h      CODE               @crom (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     01a1h     01dah    003ah      CODE               __init_led (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     01dbh     022eh    0054h      CODE               __updateDisplayNormal (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     022fh     0272h    0044h      CODE               __updateDisplayAll (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     0273h     02b5h    0043h      CODE               __updateDisplayoff (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     02b6h     02d1h    001ch      CODE               __clearRam (E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ)
+     00h     02d2h     02feh    002dh      CODE               __sysinit (E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ)
+     00h     02ffh     0322h    0024h      CODE               _timer0 (E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ)
+     00h     0323h     0330h    000eh      CODE               _fun_scan_key (E:\Doing\啟德電子\DriveHT1635Led\output\FUNSCANKEY.OBJ)
+     00h     0331h     034eh    001eh      CODE               _fun_task_key (E:\Doing\啟德電子\DriveHT1635Led\output\FUNSCANKEY.OBJ)
+     00h     034fh     0357h    0009h      CODE               _CROM2PROM (CROM2PROM)
+     00h     0080h     0087h    0008h      DATA     3.125     @HCCINIT0 (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
+     00h     0088h     0088h    0001h      DATA     0         @HCCINIT (E:\Doing\啟德電子\DriveHT1635Led\output\STARTUP1.OBJ)
+     00h     0089h     0089h    0001h      DATA     92        @data_ra (C:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     008ah     008ah    0001h      DATA     4         @data_rb (C:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     008bh     008bh    0001h      DATA     2         @data_rc (C:\Program Files\Holtek MCU Development Tools\HT-IDE3000V7.x\LIB\LIBHOLTEKGCC.LIB)
+     00h     008ch     008ch    0001h      DATA     2         @data_r114 (isr:ra~rh)
+     00h     008dh     008dh    0001h      DATA     2         @data_r214 (isr:ra~rh)
+     00h     008eh     008eh    0001h      DATA     2         @data_r314 (isr:ra~rh)
+     00h     008fh     008fh    0001h      DATA     3         @data_ra14 (isr:ra~rh)
+     00h     0090h     0090h    0001h      DATA     3         @data_rb14 (isr:ra~rh)
+     00h     0091h     0091h    0001h      DATA     3         @data_rc14 (isr:ra~rh)
 
      Local Sections
 
      Bank    Start     End      Length     Class    AvgIns    Name
-     00h     008ah     008ah    0000h      LOCAL    0         @dummy (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
-     00h     008ah     008ah    0000h      LOCAL    0         _main (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
-     00h     008ah     008ah    0000h      LOCAL    0         _init_led (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
-     00h     0087h     0089h    0003h      LOCAL    9.3333    _iicSendCommand (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0085h     0085h    0000h      LOCAL    0         _iicStart (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0085h     0085h    0000h      LOCAL    0         __delay (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0085h     0086h    0002h      LOCAL    1.5       _iicWrite (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0085h     0085h    0001h      LOCAL    2         _TestAck (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0085h     0085h    0000h      LOCAL    0         _iicStop (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
-     00h     0087h     0087h    0000h      LOCAL    0         _updateDisplayHello (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
-     00h     0085h     0085h    0000h      LOCAL    0         _Crom2Prom (CROM2PROM)
-     00h     0085h     0085h    0000h      LOCAL    0         _fun_scan_key (E:\Doing\啟德電子\DriveHT1635Led\output\FUNSCANKEY.OBJ)
+     00h     0098h     0098h    0000h      LOCAL    0         @dummy (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
+     00h     0097h     0097h    0001h      LOCAL    4         _main (E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         __clearRam (E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         __sysinit (E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ)
+     00h     0097h     0097h    0000h      LOCAL    0         __init_led (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     0094h     0096h    0003h      LOCAL    9.3333    _iicSendCommand (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         _iicStart (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         __delay (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     0092h     0093h    0002h      LOCAL    1.5       _iicWrite (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     0092h     0092h    0001h      LOCAL    2         _TestAck (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         _iicStop (E:\Doing\啟德電子\DriveHT1635Led\output\IIC.OBJ)
+     00h     0094h     0094h    0000h      LOCAL    0         __updateDisplayHello (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         _Crom2Prom (CROM2PROM)
+     00h     0092h     0092h    0000h      LOCAL    0         _fun_scan_key (E:\Doing\啟德電子\DriveHT1635Led\output\FUNSCANKEY.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         _fun_task_key (E:\Doing\啟德電子\DriveHT1635Led\output\FUNSCANKEY.OBJ)
+     00h     0094h     0094h    0000h      LOCAL    0         __updateDisplayNormal (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     0094h     0094h    0000h      LOCAL    0         __updateDisplayAll (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     0094h     0094h    0000h      LOCAL    0         __updateDisplayoff (E:\Doing\啟德電子\DriveHT1635Led\output\LEDDISPLAY.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         @dummy20 (E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ)
+     00h     0092h     0092h    0000h      LOCAL    0         _timer0 (E:\Doing\啟德電子\DriveHT1635Led\output\SYSINIT.OBJ)
 
      Public Symbols Information
      Address            Public by Name
-     00dbh              _Crom2Prom
-     00dah              _Crom2PromNext
-     0100h              _LedDisplayHell0Table
-     0040h              _TestAck
-     0021h              __delay
-     0083h              _counter
-     0081h              _flag_10ms
-     00c8h              _fun_scan_key
-     005ch              _iicSendCommand
-     0087h              _iicSendCommand_2
-     002ah              _iicStart
-     0035h              _iicStop
-     004dh              _iicWrite
-     0151h              _init_led
-     0080h              _keyCount
-     0014h              _main
+     0080h              _BinklState
+     0350h              _Crom2Prom
+     034fh              _Crom2PromNext
+     0150h              _LedDisplayHell0Table
+     0100h              _LedDisplayNormalTable
+     0072h              _TestAck
+     02b6h              __clearRam
+     0053h              __delay
+     01a1h              __init_led
+     02d2h              __sysinit
+     022fh              __updateDisplayAll
+     00a6h              __updateDisplayHello
+     01dbh              __updateDisplayNormal
+     0273h              __updateDisplayoff
+     0088h              _counter
+     0085h              _counter10ms
+     0083h              _counter3s
+     0081h              _displayState
+     0087h              _flag_byte0
+     0323h              _fun_scan_key
+     0331h              _fun_task_key
+     008eh              _iicSendCommand
+     0094h              _iicSendCommand_2
+     005ch              _iicStart
+     0067h              _iicStop
+     007fh              _iicWrite
+     0086h              _keyCount
+     0018h              _main
      0001h              _main_startup
-     0082h              _poweron
-     0074h              _updateDisplayHello
-     0084h              ra
+     0082h              _modecount
+     02ffh              _timer0
+     008ch              r114
+     008dh              r214
+     008eh              r314
+     0089h              ra
+     008fh              ra14
+     008ah              rb
+     0090h              rb14
+     008bh              rc
+     0091h              rc14
 
      Address            Public by Value
      0001h              _main_startup
-     0014h              _main
-     0021h              __delay
-     002ah              _iicStart
-     0035h              _iicStop
-     0040h              _TestAck
-     004dh              _iicWrite
-     005ch              _iicSendCommand
-     0074h              _updateDisplayHello
-     0080h              _keyCount
-     0081h              _flag_10ms
-     0082h              _poweron
-     0083h              _counter
-     0084h              ra
-     0087h              _iicSendCommand_2
-     00c8h              _fun_scan_key
-     00dah              _Crom2PromNext
-     00dbh              _Crom2Prom
-     0100h              _LedDisplayHell0Table
-     0151h              _init_led
+     0018h              _main
+     0053h              __delay
+     005ch              _iicStart
+     0067h              _iicStop
+     0072h              _TestAck
+     007fh              _iicWrite
+     0080h              _BinklState
+     0081h              _displayState
+     0082h              _modecount
+     0083h              _counter3s
+     0085h              _counter10ms
+     0086h              _keyCount
+     0087h              _flag_byte0
+     0088h              _counter
+     0089h              ra
+     008ah              rb
+     008bh              rc
+     008ch              r114
+     008dh              r214
+     008eh              r314
+     008eh              _iicSendCommand
+     008fh              ra14
+     0090h              rb14
+     0091h              rc14
+     0094h              _iicSendCommand_2
+     00a6h              __updateDisplayHello
+     0100h              _LedDisplayNormalTable
+     0150h              _LedDisplayHell0Table
+     01a1h              __init_led
+     01dbh              __updateDisplayNormal
+     022fh              __updateDisplayAll
+     0273h              __updateDisplayoff
+     02b6h              __clearRam
+     02d2h              __sysinit
+     02ffh              _timer0
+     0323h              _fun_scan_key
+     0331h              _fun_task_key
+     034fh              _Crom2PromNext
+     0350h              _Crom2Prom
 
 
 ROM Usage Statistics
      Size      Used     Percentage
-     1000h     016eh    8%
+     1000h     0350h    20%
 
 RAM Usage Statistics
     Bank      Size      Used     Percentage
-     00h       0080h     000ah    7%
+     00h       0080h     0018h    18%
      01h       0040h     0000h    0%
-     Total     00c0h     000ah    5%
+     Total     00c0h     0018h    12%
 
 Use Stack Count
 _main: 4
 _Ack: 1
 _NoAck: 1
 _iicRead: 1
-_updateDisplayBlink2s: 3
-_updateDisplayoff: 2
+__updateDisplayBlink2s: 3
+__reset_init: 1
+_timer0: 0
 
 Call Tree
     @dummy
         _main
-            _init_led
+            __clearRam
+            __sysinit
+            __init_led
                 _iicSendCommand
                     _iicStart
                         __delay
@@ -124,7 +192,7 @@ Call Tree
                         __delay
                     _iicStop
                         __delay
-                _updateDisplayHello
+                __updateDisplayHello
                     _iicStart
                         __delay
                     _iicWrite
@@ -132,7 +200,7 @@ Call Tree
                     _TestAck
                         __delay
                     _Crom2Prom
-            _updateDisplayHello
+            __updateDisplayHello
                 _iicStart
                     __delay
                 _iicWrite
@@ -141,14 +209,39 @@ Call Tree
                     __delay
                 _Crom2Prom
             _fun_scan_key
+            _fun_task_key
+            __updateDisplayNormal
+                _iicStart
+                    __delay
+                _iicWrite
+                    __delay
+                _TestAck
+                    __delay
+                _Crom2Prom
+            __updateDisplayAll
+                _iicStart
+                    __delay
+                _iicWrite
+                    __delay
+                _TestAck
+                    __delay
+                _iicStop
+                    __delay
+            __updateDisplayoff
+                _iicStart
+                    __delay
+                _iicWrite
+                    __delay
+                _TestAck
+                    __delay
     _Ack
         __delay
     _NoAck
         __delay
     _iicRead
         __delay
-    _updateDisplayBlink2s
-        _updateDisplayAll
+    __updateDisplayBlink2s
+        __updateDisplayAll
             _iicStart
                 __delay
             _iicWrite
@@ -166,13 +259,10 @@ Call Tree
                 __delay
             _iicStop
                 __delay
-    _updateDisplayoff
-        _iicStart
-            __delay
-        _iicWrite
-            __delay
-        _TestAck
-            __delay
+    __reset_init
+        __sysinit
+    @dummy20
+        _timer0
 
 HLINK: Program entry point at section '@code' (address 0) of file 'E:\Doing\啟德電子\DriveHT1635Led\output\MAIN.OBJ'
 

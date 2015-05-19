@@ -1,11 +1,11 @@
-#ifndef FUN_SCAN_KEY_H_
-#define FUN_SCAN_KEY_H_
+#ifndef _FUN_SCAN_KEY_H
+#define _FUN_SCAN_KEY_H
 
 #include "HT68F40.h"
 
 
-unsigned char fun_scan_key(void);
-
+void fun_scan_key(void);
+void fun_task_key(void);
 
 #define KEY  _pa5
 #define KEYC _pac5

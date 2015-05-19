@@ -11,14 +11,14 @@
 //History : 
 //___________________________________________________________________
 //___________________________________________________________________
-#ifndef SYSINIT_H
-#define SYSINIT_H
+#ifndef _SYSINIT_H
+#define _SYSINIT_H
 
 #define RambankMaxSector	4
 
-
-
-
+void _clearRam(void);
+void _sysinit(void);
+void _reset_init(void);
 
 
 

@@ -12,66 +12,162 @@
 				;11	//History : 
 				;12	//___________________________________________________________________
 				;13	//___________________________________________________________________
-				;14	/*#include "HT68F40.h"*/
-				;15	#include "config.h"
-				;16	
-				;17	
-				;18	unsigned char poweron = 0;
-0012	0900	ret     a, 0H
-				;19	unsigned char flag_10ms = 0;
-				@ROMDATA_BASE .SECTION 'CODE'
-				@ROMDATA_BASE .SECTION 'CODE'
-0011	0900	ret     a, 0H
+				;14	#include "config.h"
+				;15	
+				;16	volatile unsigned char	modecount;
+				;17	volatile unsigned char	displayState;
+				;18	
+				;19	volatile unsigned char	BinklState;
 				;20	
-				;21	void main()
-				;22	{
+				;21	
+				;22	
+				;23	void main()
+				;24	{
 				@code .SECTION 'CODE'
 				include HT68F40.inc
 0000	2801	jmp     _main_startup
 				startupend1:
 				@start .SECTION 'CODE'
-000F	2814	jmp     _main
-				;23		if (_to == 0 || _pdf ==0)
+000F	2818	jmp     _main
+				;25		if (_to == 0 || _pdf ==0){
+				@dummy20 .SECTION 'CODE'
 				_main:
 				_main:
-0014	3A8A	snz     TO
-0015	2818	jmp     _L2
-0016	070A	mov     a, STATUS
-0017	4084	mov     ra, a
-				;24		{
-				;25	//		ram_init();
-				;26	//		sys_init();
-				;27	//		poweron_init();
-				;28		}
-				;29		else
-				;30		{	
-				;31	//		reset_init();
-				;32		}
-				;33		init_led();
+0018	3A8A	snz     TO
+0019	281C	jmp     _L2
+001A	3E0A	sz      PDF
+001B	281E	jmp     _L3
+				;26			_clearRam();
 				_L2:
-0018	2151	call    _init_led
-				;34		updateDisplayHello();
-0019	2074	call    _updateDisplayHello
-				;35		while(1)
-				;36		{
-				;37			if (flag_10ms==1)
-				_L5:
-001A	5701	sdza    flag_10ms[0]
-001B	281D	jmp     _L6
-001C	281E	jmp     _L3
-				_L6:
-				_LI1:
-001D	281D	jmp     $
-				;38			{
-				;39				fun_scan_key();
+001C	22B6	call    __clearRam
+				;27			_sysinit();
+001D	22D2	call    __sysinit
+				;28		}
+				;29		else{	
+				;30	
+				;31		}
+				;32		//power on Display hello
+				;33		_init_led();
 				_L3:
-001E	20C8	call    _fun_scan_key
-001F	281A	jmp     _L5
-0020	2820	jmp     $
-				;40			}
-				;41		}		
-				;42	
-				;43	}
+001E	21A1	call    __init_led
+				;34		_updateDisplayHello();
+001F	20A6	call    __updateDisplayHello
+				;35		while(1){
+				;36			
+				;37			//key scan
+				;38			if (flag_10ms==1){
+				_L15:
+0020	7907	snz     flag_byte0[0].2
+0021	2844	jmp     _L5
+				;39	
+				;40				flag_10ms=0;
+0022	7507	clr     flag_byte0[0].2
+				;41				fun_scan_key();
+0023	2323	call    _fun_scan_key
+				;42				fun_task_key();				
+0024	2331	call    _fun_task_key
+				;43				
+				;44				switch(displayState){
+0025	4701	mov     a, displayState[0]
+0026	4097	mov     _main_2, a
+0027	4717	mov     a, _main_2
+0028	0A00	sub     a, 0H
+0029	3D0A	sz      Z
+002A	283B	jmp     _L6
+002B	0A01	sub     a, 1H
+002C	3D0A	sz      Z
+002D	283F	jmp     _L22
+002E	4717	mov     a, _main_2
+002F	0A02	sub     a, 2H
+0030	3D0A	sz      Z
+0031	2843	jmp     _L23
+0032	0A02	sub     a, 2H
+0033	3D0A	sz      Z
+0034	283D	jmp     _L9
+0035	4717	mov     a, _main_2
+0036	0A05	sub     a, 5H
+0037	390A	snz     Z
+0038	2844	jmp     _L5
+				;45					case displayState_Hello:
+				;46					_updateDisplayHello();
+				_L6:
+003B	20A6	call    __updateDisplayHello
+				;47					break;
+003C	2844	jmp     _L5
+				;48					case displayState_All:
+				;49						_updateDisplayAll();
+				;50						break;			
+				;51					case displayState_Off:
+				;52						_updateDisplayoff();
+				;53						break;			
+				;54					case displayState_Bink0:
+				;55						break;			
+				;56					case displayState_Bink1:
+				;57						if (BinklState==BinkState_All)
+				_L9:
+003D	5080	sz      BinklState[0]
+003E	2841	jmp     _L11
+				;58						{
+				;59							_updateDisplayAll();
+				_L22:
+003F	222F	call    __updateDisplayAll
+0040	2844	jmp     _L5
+				;60						}
+				;61						else if (BinklState==BinkState_Off)
+				_L11:
+0041	5700	sdza    BinklState[0]
+0042	2844	jmp     _L5
+				;62						{
+				;63							_updateDisplayoff();
+				_L23:
+0043	2273	call    __updateDisplayoff
+				;64						}
+				;65						break;
+				;66					case displayState_Normal:
+				;67						_updateDisplayNormal();
+0039	21DB	call    __updateDisplayNormal
+				;68						break;					
+003A	2844	jmp     _L5
+				;69					default:
+				;70	
+				;71						break;	
+				;72				}		
+				;73			}
+				;74			if (flag_3s==1)
+				_L5:
+0044	7887	snz     flag_byte0[0].1
+0045	284E	jmp     _L13
+				;75			{
+				;76				if (BinklState==BinkState_All)
+0046	5080	sz      BinklState[0]
+0047	284B	jmp     _L14
+				;77				{
+				;78					BinklState=BinkState_Off;
+0048	0F01	mov     a, 1H
+0049	4080	mov     BinklState[0], a
+004A	284E	jmp     _L13
+				;79				}
+				;80				else if (BinklState==BinkState_Off)
+				_L14:
+004B	5700	sdza    BinklState[0]
+004C	284E	jmp     _L13
+				;81				{
+				;82					BinklState=BinkState_All;
+004D	5F00	clr     BinklState[0]
+				;83				}
+				;84			}
+				;85			GCC_CLRWDT();
+				_L13:
+004E	0001	clr     wdt
+				;86			GCC_CLRWDT1();
+004F	0001	clr     wdt
+				;87			GCC_CLRWDT2();	
+0050	0005	clr     wdt2
+				;88		}		
+0051	2820	jmp     _L15
+0052	2852	jmp     $
+				;89	
+				;90	}
 				;file E:\Doing\啟德電子\DriveHT1635Led\startup1.asm
 				;1	;;--------------------------------------------------------------;;
 				;2	;;    This file is part of the Holtek C Compiler V3 package     ;;
@@ -96,7 +192,7 @@
 				@start .SECTION 'CODE'
 				_main_startup1:
 				@start .SECTION 'CODE'
-0001	0F84	mov     a, 84H
+0001	0F89	mov     a, 89H
 				;20		dec acc
 0002	1585	dec     ACC
 				;21		MOV mp,A
@@ -104,7 +200,7 @@
 				;22		clr c
 0004	340A	clr     C
 				;23		Sub a, offset __initial_value_begin
-0005	0A81	sub     a, 81H
+0005	0A88	sub     a, 88H
 				;24		snz c
 0006	380A	snz     C
 				;25		jmp startupend1
@@ -112,7 +208,7 @@
 				;26	L0004:
 				;27		mov ra,a
 				L0004:
-0008	4084	mov     ra, a
+0008	4089	mov     ra, a
 				;28		CALL romdata_base1
 0009	2010	call    romdata_base1
 				;29		MOV iar,A
@@ -121,9 +217,9 @@
 000B	1581	dec     MP0
 				;31	  ;;	CLR WDT   ;;PD,TO flag will be clear. This line can be removed if a small number of global variables in C program are used.
 				;32		deca ra
-000C	5504	deca    ra
+000C	5509	deca    ra
 				;33		sz ra
-000D	5084	sz      ra
+000D	5089	sz      ra
 				;34		jmp L0004 
 000E	2808	jmp     L0004
 				;35	startupend1:
@@ -155,397 +251,1025 @@
 				;11	//History : 
 				;12	//___________________________________________________________________
 				;13	//___________________________________________________________________
-				;14	#include "LedDisplay.h"
-				;15	#include "IIC.h"
-				;16	
-				;17	unsigned char counter =0;
+				;14	#include "config.h"
+				;15	
+				;16	unsigned char counter =0;
 				@ROMDATA_BASE .SECTION 'CODE'
-0013	0900	ret     a, 0H
+0011	0900	ret     a, 0H
+0012	0000	nop
+0013	0000	nop
+				;17	
 				;18	
-				;19	
-				;20	/***********************
-				;21	上電對led1 & led2 初始化
-				;22	
-				;23	**********/
-				;24	
-				;25	const unsigned char	LedDisplayHell0Table[]={
+				;19	/***********************
+				;20	上電對led1 & led2 初始化
+				;21	
+				;22	**********/
+				;23	
+				;24	const unsigned char	LedDisplayHell0Table[]={
+0150	0900	ret     a, 0H
+0151	0908	ret     a, 8H
+0152	0920	ret     a, 20H
+0153	09F8	ret     a, F8H
+0154	093F	ret     a, 3FH
+0155	0908	ret     a, 8H
+0156	0921	ret     a, 21H
+0157	0900	ret     a, 0H
+0158	0901	ret     a, 1H
+0159	0900	ret     a, 0H
+015A	0901	ret     a, 1H
+015B	0908	ret     a, 8H
+015C	0921	ret     a, 21H
+015D	09F8	ret     a, F8H
+015E	093F	ret     a, 3FH
+015F	0908	ret     a, 8H
+0160	0920	ret     a, 20H
+0161	0900	ret     a, 0H
+0162	0900	ret     a, 0H
+0163	0900	ret     a, 0H
+0164	091F	ret     a, 1FH
+0165	0980	ret     a, 80H
+0166	0922	ret     a, 22H
+0167	0980	ret     a, 80H
+0168	0922	ret     a, 22H
+0169	0980	ret     a, 80H
+016A	0922	ret     a, 22H
+016B	0980	ret     a, 80H
+016C	0922	ret     a, 22H
+016D	0900	ret     a, 0H
+016E	0913	ret     a, 13H
+016F	0900	ret     a, 0H
+0170	0900	ret     a, 0H
+0171	0900	ret     a, 0H
+0172	0900	ret     a, 0H
+0173	0908	ret     a, 8H
+0174	0920	ret     a, 20H
+0175	0908	ret     a, 8H
+0176	0920	ret     a, 20H
+0177	09F8	ret     a, F8H
+0178	093F	ret     a, 3FH
+0179	0900	ret     a, 0H
+017A	0920	ret     a, 20H
+017B	0900	ret     a, 0H
+017C	0920	ret     a, 20H
+017D	0900	ret     a, 0H
+017E	0900	ret     a, 0H
+017F	0900	ret     a, 0H
+0180	0900	ret     a, 0H
+0181	0900	ret     a, 0H
+0182	0900	ret     a, 0H
+0183	0908	ret     a, 8H
+0184	0920	ret     a, 20H
+0185	0908	ret     a, 8H
+0186	0920	ret     a, 20H
+0187	09F8	ret     a, F8H
+0188	093F	ret     a, 3FH
+0189	0900	ret     a, 0H
+018A	0920	ret     a, 20H
+018B	0900	ret     a, 0H
+018C	0920	ret     a, 20H
+018D	0900	ret     a, 0H
+018E	0900	ret     a, 0H
+018F	0900	ret     a, 0H
+0190	0900	ret     a, 0H
+0191	0900	ret     a, 0H
+0192	0900	ret     a, 0H
+0193	0900	ret     a, 0H
+0194	091F	ret     a, 1FH
+0195	0980	ret     a, 80H
+0196	0920	ret     a, 20H
+0197	0980	ret     a, 80H
+0198	0920	ret     a, 20H
+0199	0980	ret     a, 80H
+019A	0920	ret     a, 20H
+019B	0980	ret     a, 80H
+019C	0920	ret     a, 20H
+019D	0900	ret     a, 0H
+019E	091F	ret     a, 1FH
+019F	0900	ret     a, 0H
+01A0	0900	ret     a, 0H
+				;25	0x08,0x20,0xF8,0x3F,0x08,0x21,0x00,0x01,
+				;26	0x00,0x01,0x08,0x21,0xF8,0x3F,0x08,0x20,/*"H",0*/
+				;27	0x00,0x00,0x00,0x1F,0x80,0x22,0x80,0x22,
+				;28	0x80,0x22,0x80,0x22,0x00,0x13,0x00,0x00,/*"e",1*/
+				;29	0x00,0x00,0x08,0x20,0x08,0x20,0xF8,0x3F,
+				;30	0x00,0x20,0x00,0x20,0x00,0x00,0x00,0x00,/*"l",2*/
+				;31	0x00,0x00,0x08,0x20,0x08,0x20,0xF8,0x3F,
+				;32	0x00,0x20,0x00,0x20,0x00,0x00,0x00,0x00,/*"l",3*/
+				;33	0x00,0x00,0x00,0x1F,0x80,0x20,0x80,0x20,
+				;34	0x80,0x20,0x80,0x20,0x00,0x1F,0x00,0x00/*"o",4*/
+				;35	};
+				;36	const unsigned char LedDisplayNormalTable[]={
 				L0100:
 0100	0386	addm    a, PCL
-0101	0908	ret     a, 8H
-0102	0920	ret     a, 20H
-0103	09F8	ret     a, F8H
-0104	093F	ret     a, 3FH
-0105	0908	ret     a, 8H
-0106	0921	ret     a, 21H
-0107	0900	ret     a, 0H
-0108	0901	ret     a, 1H
-0109	0900	ret     a, 0H
-010A	0901	ret     a, 1H
-010B	0908	ret     a, 8H
-010C	0921	ret     a, 21H
-010D	09F8	ret     a, F8H
-010E	093F	ret     a, 3FH
-010F	0908	ret     a, 8H
-0110	0920	ret     a, 20H
+0101	0900	ret     a, 0H
+0102	0900	ret     a, 0H
+0103	0900	ret     a, 0H
+0104	0900	ret     a, 0H
+0105	0900	ret     a, 0H
+0106	0900	ret     a, 0H
+0107	09F8	ret     a, F8H
+0108	090F	ret     a, FH
+0109	0980	ret     a, 80H
+010A	0900	ret     a, 0H
+010B	0980	ret     a, 80H
+010C	0900	ret     a, 0H
+010D	0980	ret     a, 80H
+010E	0900	ret     a, 0H
+010F	09F8	ret     a, F8H
+0110	090F	ret     a, FH
 0111	0900	ret     a, 0H
 0112	0900	ret     a, 0H
-0113	0900	ret     a, 0H
-0114	091F	ret     a, 1FH
-0115	0980	ret     a, 80H
-0116	0922	ret     a, 22H
-0117	0980	ret     a, 80H
-0118	0922	ret     a, 22H
-0119	0980	ret     a, 80H
-011A	0922	ret     a, 22H
-011B	0980	ret     a, 80H
-011C	0922	ret     a, 22H
+0113	09F0	ret     a, F0H
+0114	0907	ret     a, 7H
+0115	0908	ret     a, 8H
+0116	0908	ret     a, 8H
+0117	0908	ret     a, 8H
+0118	0908	ret     a, 8H
+0119	0908	ret     a, 8H
+011A	0908	ret     a, 8H
+011B	09F0	ret     a, F0H
+011C	0907	ret     a, 7H
 011D	0900	ret     a, 0H
-011E	0913	ret     a, 13H
-011F	0900	ret     a, 0H
-0120	0900	ret     a, 0H
+011E	0900	ret     a, 0H
+011F	09F8	ret     a, F8H
+0120	090F	ret     a, FH
 0121	0900	ret     a, 0H
-0122	0900	ret     a, 0H
-0123	0908	ret     a, 8H
-0124	0920	ret     a, 20H
-0125	0908	ret     a, 8H
-0126	0920	ret     a, 20H
-0127	09F8	ret     a, F8H
-0128	093F	ret     a, 3FH
+0122	0908	ret     a, 8H
+0123	0900	ret     a, 0H
+0124	0908	ret     a, 8H
+0125	0900	ret     a, 0H
+0126	0908	ret     a, 8H
+0127	0900	ret     a, 0H
+0128	0908	ret     a, 8H
 0129	0900	ret     a, 0H
-012A	0920	ret     a, 20H
-012B	0900	ret     a, 0H
-012C	0920	ret     a, 20H
-012D	0900	ret     a, 0H
+012A	0900	ret     a, 0H
+012B	0908	ret     a, 8H
+012C	0900	ret     a, 0H
+012D	0908	ret     a, 8H
 012E	0900	ret     a, 0H
-012F	0900	ret     a, 0H
-0130	0900	ret     a, 0H
-0131	0900	ret     a, 0H
+012F	09F8	ret     a, F8H
+0130	090F	ret     a, FH
+0131	0908	ret     a, 8H
 0132	0900	ret     a, 0H
 0133	0908	ret     a, 8H
-0134	0920	ret     a, 20H
-0135	0908	ret     a, 8H
-0136	0920	ret     a, 20H
+0134	0900	ret     a, 0H
+0135	0900	ret     a, 0H
+0136	0900	ret     a, 0H
 0137	09F8	ret     a, F8H
-0138	093F	ret     a, 3FH
-0139	0900	ret     a, 0H
-013A	0920	ret     a, 20H
-013B	0900	ret     a, 0H
-013C	0920	ret     a, 20H
-013D	0900	ret     a, 0H
-013E	0900	ret     a, 0H
-013F	0900	ret     a, 0H
-0140	0900	ret     a, 0H
+0138	090F	ret     a, FH
+0139	0988	ret     a, 88H
+013A	0908	ret     a, 8H
+013B	0988	ret     a, 88H
+013C	0908	ret     a, 8H
+013D	0988	ret     a, 88H
+013E	0908	ret     a, 8H
+013F	0908	ret     a, 8H
+0140	0908	ret     a, 8H
 0141	0900	ret     a, 0H
 0142	0900	ret     a, 0H
-0143	0900	ret     a, 0H
-0144	091F	ret     a, 1FH
+0143	09F8	ret     a, F8H
+0144	090F	ret     a, FH
 0145	0980	ret     a, 80H
-0146	0920	ret     a, 20H
-0147	0980	ret     a, 80H
-0148	0920	ret     a, 20H
-0149	0980	ret     a, 80H
-014A	0920	ret     a, 20H
-014B	0980	ret     a, 80H
-014C	0920	ret     a, 20H
+0146	0900	ret     a, 0H
+0147	0960	ret     a, 60H
+0148	0903	ret     a, 3H
+0149	0918	ret     a, 18H
+014A	090C	ret     a, CH
+014B	0900	ret     a, 0H
+014C	0900	ret     a, 0H
 014D	0900	ret     a, 0H
-014E	091F	ret     a, 1FH
+014E	0900	ret     a, 0H
 014F	0900	ret     a, 0H
-0150	0900	ret     a, 0H
-				;26	0x08,0x20,0xF8,0x3F,0x08,0x21,0x00,0x01,
-				;27	0x00,0x01,0x08,0x21,0xF8,0x3F,0x08,0x20,/*"H",0*/
-				;28	0x00,0x00,0x00,0x1F,0x80,0x22,0x80,0x22,
-				;29	0x80,0x22,0x80,0x22,0x00,0x13,0x00,0x00,/*"e",1*/
-				;30	0x00,0x00,0x08,0x20,0x08,0x20,0xF8,0x3F,
-				;31	0x00,0x20,0x00,0x20,0x00,0x00,0x00,0x00,/*"l",2*/
-				;32	0x00,0x00,0x08,0x20,0x08,0x20,0xF8,0x3F,
-				;33	0x00,0x20,0x00,0x20,0x00,0x00,0x00,0x00,/*"l",3*/
-				;34	0x00,0x00,0x00,0x1F,0x80,0x20,0x80,0x20,
-				;35	0x80,0x20,0x80,0x20,0x00,0x1F,0x00,0x00/*"o",4*/
-				;36	};
-				;37	
-				;38	void init_led(void){
-				;39		//init HT1635B 1 
-				;40		iicSendCommand(SLAVEMCU1ADD, SYS_SET_COMMAND,SYS_LED_DEFAULT1);
-				_init_led:
-				_init_led:
-0151	0F03	mov     a, 3H
-0152	4088	mov     commandData, a
-0153	0F82	mov     a, 82H
-0154	4087	mov     command, a
-0155	0FD0	mov     a, D0H
-0156	205C	call    _iicSendCommand
-				;41		iicSendCommand(SLAVEMCU1ADD,BLINK_FRQ_COMMAND,BLINK_DEFAULT1);
-0157	0F03	mov     a, 3H
-0158	4088	mov     commandData, a
-0159	0F84	mov     a, 84H
-015A	4087	mov     command, a
-015B	0FD0	mov     a, D0H
-015C	205C	call    _iicSendCommand
-				;42		iicSendCommand(SLAVEMCU1ADD,DRIVE_OUT_COMMAMND,DRIVE_TYPE_DEFAULT1);
-015D	5F08	clr     commandData
-015E	0F88	mov     a, 88H
-015F	4087	mov     command, a
-0160	0FD0	mov     a, D0H
-0161	205C	call    _iicSendCommand
-				;43		iicSendCommand(SLAVEMCU1ADD,CASCADE_COMMAND,CASCADE_DEFAULT1);
-0162	0F04	mov     a, 4H
-0163	4088	mov     commandData, a
-0164	0FA0	mov     a, A0H
-0165	4087	mov     command, a
-0166	0FD0	mov     a, D0H
-0167	205C	call    _iicSendCommand
-				;44		iicSendCommand(SLAVEMCU1ADD,PWM_DUTY_COMMAND,PWM_DUTY_DEFAULT1);
-0168	5F08	clr     commandData
-0169	0FC0	mov     a, C0H
-016A	4087	mov     command, a
-016B	0FD0	mov     a, D0H
-016C	205C	call    _iicSendCommand
-				;45		//init HT1635B 2
-				;46		iicSendCommand(SLAVEMCU2ADD, SYS_SET_COMMAND,SYS_LED_DEFAULT2);
-016D	0F03	mov     a, 3H
-016E	4088	mov     commandData, a
-016F	0F82	mov     a, 82H
-0170	4087	mov     command, a
-0171	0FD4	mov     a, D4H
-0172	205C	call    _iicSendCommand
-				;47		iicSendCommand(SLAVEMCU2ADD,BLINK_FRQ_COMMAND,BLINK_DEFAULT2);
-0173	0F03	mov     a, 3H
-0174	4088	mov     commandData, a
-0175	0F84	mov     a, 84H
-0176	4087	mov     command, a
-0177	0FD4	mov     a, D4H
-0178	205C	call    _iicSendCommand
-				;48		iicSendCommand(SLAVEMCU2ADD,DRIVE_OUT_COMMAMND,DRIVE_TYPE_DEFAULT2);
-0179	5F08	clr     commandData
-017A	0F88	mov     a, 88H
-017B	4087	mov     command, a
-017C	0FD4	mov     a, D4H
-017D	205C	call    _iicSendCommand
-				;49		iicSendCommand(SLAVEMCU2ADD,CASCADE_COMMAND,CASCADE_DEFAULT2);
-017E	0F04	mov     a, 4H
-017F	4088	mov     commandData, a
-0180	0FA0	mov     a, A0H
-0181	4087	mov     command, a
-0182	0FD4	mov     a, D4H
-0183	205C	call    _iicSendCommand
-				;50		iicSendCommand(SLAVEMCU2ADD,PWM_DUTY_COMMAND,PWM_DUTY_DEFAULT2);
-0184	5F08	clr     commandData
-0185	0FC0	mov     a, C0H
-0186	4087	mov     command, a
-0187	0FD4	mov     a, D4H
-0188	205C	call    _iicSendCommand
-				;51	
-				;52		//power on Display hello
-				;53		updateDisplayHello();	
-0189	2074	call    _updateDisplayHello
-018A	0003	ret
-				;54	}
-				;55	/***********************
-				;56	閃爍mode
-				;57	利用MCU內部的Blink mode
-				;58	**********/
-				;59	void updateDisplayBlink2s(void){
-				;60		updateDisplayAll();
-				;61		iicSendCommand(SLAVEMCU1ADD,BLINK_FRQ_COMMAND,BLINK_0_5HZ);
-				;62		iicSendCommand(SLAVEMCU2ADD,BLINK_FRQ_COMMAND,BLINK_0_5HZ);
-				;63	}
-				;64	/***********************
-				;65	顯示hello
+				;37	0X00,0X00,0X00,0X00,
+				;38	0x00,0x00,0xF8,0x0F,0x80,0x00,0x80,0x00,
+				;39	0x80,0x00,0xF8,0x0F,/*"H",0*/
+				;40	0x00,0x00,0xF0,0x07,0x08,0x08,0x08,0x08,
+				;41	0x08,0x08,0xF0,0x07,/*"O",1*/
+				;42	0x00,0x00,0xF8,0x0F,0x00,0x08,0x00,0x08,
+				;43	0x00,0x08,0x00,0x08,/*"L",2*/
+				;44	0x00,0x00,0x08,0x00,0x08,0x00,0xF8,0x0F,
+				;45	0x08,0x00,0x08,0x00,/*"T",3*/
+				;46	0x00,0x00,0xF8,0x0F,0x88,0x08,0x88,0x08,
+				;47	0x88,0x08,0x08,0x08,/*"E",4*/
+				;48	0x00,0x00,0xF8,0x0F,0x80,0x00,0x60,0x03,
+				;49	0x18,0x0C,0x00,0x00,/*"K",5*/
+				;50	0X00,0X00,0X00,0X00
+				;51	};
+				;52	
+				;53	void _init_led(void){
+				;54		//init HT1635B 1 
+				;55		iicSendCommand(SLAVEMCU1ADD, SYS_SET_COMMAND,SYS_LED_DEFAULT1);
+				__init_led:
+				__init_led:
+01A1	0F03	mov     a, 3H
+01A2	4095	mov     commandData, a
+01A3	0F82	mov     a, 82H
+01A4	4094	mov     command, a
+01A5	0FD0	mov     a, D0H
+01A6	208E	call    _iicSendCommand
+				;56		iicSendCommand(SLAVEMCU1ADD,BLINK_FRQ_COMMAND,BLINK_DEFAULT1);
+01A7	0F02	mov     a, 2H
+01A8	4095	mov     commandData, a
+01A9	0F84	mov     a, 84H
+01AA	4094	mov     command, a
+01AB	0FD0	mov     a, D0H
+01AC	208E	call    _iicSendCommand
+				;57		iicSendCommand(SLAVEMCU1ADD,DRIVE_OUT_COMMAMND,DRIVE_TYPE_DEFAULT1);
+01AD	5F15	clr     commandData
+01AE	0F88	mov     a, 88H
+01AF	4094	mov     command, a
+01B0	0FD0	mov     a, D0H
+01B1	208E	call    _iicSendCommand
+				;58		iicSendCommand(SLAVEMCU1ADD,CASCADE_COMMAND,CASCADE_DEFAULT1);
+01B2	0F04	mov     a, 4H
+01B3	4095	mov     commandData, a
+01B4	0FA0	mov     a, A0H
+01B5	4094	mov     command, a
+01B6	0FD0	mov     a, D0H
+01B7	208E	call    _iicSendCommand
+				;59		iicSendCommand(SLAVEMCU1ADD,PWM_DUTY_COMMAND,PWM_DUTY_DEFAULT1);
+01B8	5F15	clr     commandData
+01B9	0FC0	mov     a, C0H
+01BA	4094	mov     command, a
+01BB	0FD0	mov     a, D0H
+01BC	208E	call    _iicSendCommand
+				;60		//init HT1635B 2
+				;61		iicSendCommand(SLAVEMCU2ADD, SYS_SET_COMMAND,SYS_LED_DEFAULT2);
+01BD	0F03	mov     a, 3H
+01BE	4095	mov     commandData, a
+01BF	0F82	mov     a, 82H
+01C0	4094	mov     command, a
+01C1	0FD4	mov     a, D4H
+01C2	208E	call    _iicSendCommand
+				;62		iicSendCommand(SLAVEMCU2ADD,BLINK_FRQ_COMMAND,BLINK_DEFAULT2);
+01C3	0F02	mov     a, 2H
+01C4	4095	mov     commandData, a
+01C5	0F84	mov     a, 84H
+01C6	4094	mov     command, a
+01C7	0FD4	mov     a, D4H
+01C8	208E	call    _iicSendCommand
+				;63		iicSendCommand(SLAVEMCU2ADD,DRIVE_OUT_COMMAMND,DRIVE_TYPE_DEFAULT2);
+01C9	5F15	clr     commandData
+01CA	0F88	mov     a, 88H
+01CB	4094	mov     command, a
+01CC	0FD4	mov     a, D4H
+01CD	208E	call    _iicSendCommand
+				;64		iicSendCommand(SLAVEMCU2ADD,CASCADE_COMMAND,CASCADE_DEFAULT2);
+01CE	0F04	mov     a, 4H
+01CF	4095	mov     commandData, a
+01D0	0FA0	mov     a, A0H
+01D1	4094	mov     command, a
+01D2	0FD4	mov     a, D4H
+01D3	208E	call    _iicSendCommand
+				;65		iicSendCommand(SLAVEMCU2ADD,PWM_DUTY_COMMAND,PWM_DUTY_DEFAULT2);
+01D4	5F15	clr     commandData
+01D5	0FC0	mov     a, C0H
+01D6	4094	mov     command, a
+01D7	0FD4	mov     a, D4H
+01D8	208E	call    _iicSendCommand
 				;66	
-				;67	**********/
-				;68	void updateDisplayHello(void){
-				;69		//update HT1635B 1 data
-				;70		iicStart();
-				_updateDisplayHello:
-				_updateDisplayHello:
-0074	202A	call    _iicStart
-				;71		iicWrite(SLAVEMCU1ADD);
-0075	0FD0	mov     a, D0H
-0076	204D	call    _iicWrite
-				;72		while(TestAck());
-				_L3:
-0077	2040	call    _TestAck
-0078	4084	mov     ra, a
-0079	5084	sz      ra
-007A	2877	jmp     _L3
-				;73		iicWrite(SEND_DATA_COMMAND);
-007B	0F80	mov     a, 80H
-007C	204D	call    _iicWrite
-				;74		while(TestAck());
-				_L5:
-007D	2040	call    _TestAck
-007E	4084	mov     ra, a
-007F	5084	sz      ra
-0080	287D	jmp     _L5
-				;75		iicWrite(0X00);
-0081	0F00	mov     a, 0H
-0082	204D	call    _iicWrite
-				;76		while(TestAck());
-				_L7:
-0083	2040	call    _TestAck
-0084	4084	mov     ra, a
-0085	5084	sz      ra
-0086	2883	jmp     _L7
-				;77		for (counter=0; counter < 80; counter=counter+2)
-0087	5F03	clr     counter[0]
-				_L8:
-0088	4703	mov     a, counter[0]
-0089	4084	mov     ra, a
-008A	0F4F	mov     a, 4FH
-008B	4204	sub     a, ra
-008C	380A	snz     C
-008D	289D	jmp     _L23
-009A	0F02	mov     a, 2H
-009B	4383	addm    a, counter[0]
-009C	2888	jmp     _L8
-				;78		{
-				;79			iicWrite(LedDisplayHell0Table[counter]);
-008E	0F00	mov     a, 0H
-008F	4304	add     a, ra
-0090	0083	mov     MP1, a
-0091	0F80	mov     a, 80H
-0092	1F07	clr     TBLP
-0093	1387	adcm    a, TBLP
-0094	20DB	call    L00DB
-0095	204D	call    _iicWrite
-				;80			while(TestAck());
-				_L10:
-0096	2040	call    _TestAck
-0097	4084	mov     ra, a
-0098	5084	sz      ra
-0099	2896	jmp     _L10
-				;81		}
-				;82		//update HT1635B 2 data
-				;83		iicStart();
-				_L23:
-009D	202A	call    _iicStart
-				;84		iicWrite(SLAVEMCU2ADD);
-009E	0FD4	mov     a, D4H
-009F	204D	call    _iicWrite
-				;85		while(TestAck());
-				_L13:
-00A0	2040	call    _TestAck
-00A1	4084	mov     ra, a
-00A2	5084	sz      ra
-00A3	28A0	jmp     _L13
-				;86		iicWrite(SEND_DATA_COMMAND);
-00A4	0F80	mov     a, 80H
-00A5	204D	call    _iicWrite
+				;67		//power on Display hello
+				;68		_updateDisplayHello();	
+01D9	20A6	call    __updateDisplayHello
+01DA	0003	ret
+				;69	}
+				;70	/***********************
+				;71	閃爍mode
+				;72	利用MCU內部的Blink mode
+				;73	**********/
+				;74	void _updateDisplayBlink2s(void){
+				;75		_updateDisplayAll();
+				;76		iicSendCommand(SLAVEMCU1ADD,BLINK_FRQ_COMMAND,BLINK_0_5HZ);
+				;77		iicSendCommand(SLAVEMCU2ADD,BLINK_FRQ_COMMAND,BLINK_0_5HZ);
+				;78	}
+				;79	/***********************
+				;80	顯示hello
+				;81	
+				;82	**********/
+				;83	void _updateDisplayHello(void){
+				;84		//update HT1635B 1 data
+				;85		iicStart();
+				__updateDisplayHello:
+				__updateDisplayHello:
+00A6	205C	call    _iicStart
+				;86		iicWrite(SLAVEMCU1ADD);
+00A7	0FD0	mov     a, D0H
+00A8	207F	call    _iicWrite
 				;87		while(TestAck());
-				_L15:
-00A6	2040	call    _TestAck
-00A7	4084	mov     ra, a
-00A8	5084	sz      ra
-00A9	28A6	jmp     _L15
-				;88		iicWrite(0X00);
-00AA	0F00	mov     a, 0H
-00AB	204D	call    _iicWrite
+				_L3:
+00A9	2072	call    _TestAck
+00AA	4089	mov     ra, a
+00AB	5089	sz      ra
+00AC	28A9	jmp     _L3
+				;88		iicWrite(SEND_DATA_COMMAND);
+00AD	0F80	mov     a, 80H
+00AE	207F	call    _iicWrite
 				;89		while(TestAck());
-				_L17:
-00AC	2040	call    _TestAck
-00AD	4084	mov     ra, a
-00AE	5084	sz      ra
-00AF	28AC	jmp     _L17
-				;90		for (counter = 1; counter < 80; counter=counter+2)
-00B0	0F01	mov     a, 1H
-00B1	4083	mov     counter[0], a
-00B2	28C1	jmp     _L18
-00BF	0F02	mov     a, 2H
-00C0	4383	addm    a, counter[0]
-				_L18:
-00C1	4703	mov     a, counter[0]
-00C2	4084	mov     ra, a
-00C3	0F4F	mov     a, 4FH
-00C4	4204	sub     a, ra
-00C5	3C0A	sz      C
-00C6	28B3	jmp     _L21
-00C7	0003	ret
-				;91		{
-				;92			iicWrite(LedDisplayHell0Table[counter]);
-				_L21:
+				_L5:
+00AF	2072	call    _TestAck
+00B0	4089	mov     ra, a
+00B1	5089	sz      ra
+00B2	28AF	jmp     _L5
+				;90		iicWrite(0X00);
 00B3	0F00	mov     a, 0H
-00B4	4304	add     a, ra
-00B5	0083	mov     MP1, a
-00B6	0F80	mov     a, 80H
-00B7	1F07	clr     TBLP
-00B8	1387	adcm    a, TBLP
-00B9	20DB	call    L00DB
-00BA	204D	call    _iicWrite
-				;93			while(TestAck());
+00B4	207F	call    _iicWrite
+				;91		while(TestAck());
+				_L7:
+00B5	2072	call    _TestAck
+00B6	4089	mov     ra, a
+00B7	5089	sz      ra
+00B8	28B5	jmp     _L7
+				;92		for (counter=0; counter < 80; counter=counter+2)
+00B9	5F08	clr     counter[0]
+				_L8:
+00BA	4708	mov     a, counter[0]
+00BB	4089	mov     ra, a
+00BC	0F4F	mov     a, 4FH
+00BD	4209	sub     a, ra
+00BE	380A	snz     C
+00BF	28CF	jmp     _L23
+00CC	0F02	mov     a, 2H
+00CD	4388	addm    a, counter[0]
+00CE	28BA	jmp     _L8
+				;93		{
+				;94			iicWrite(LedDisplayHell0Table[counter]);
+00C0	0F50	mov     a, 50H
+00C1	4309	add     a, ra
+00C2	0083	mov     MP1, a
+00C3	0F80	mov     a, 80H
+00C4	1F07	clr     TBLP
+00C5	1387	adcm    a, TBLP
+00C6	2350	call    L0350
+00C7	207F	call    _iicWrite
+				;95			while(TestAck());
+				_L10:
+00C8	2072	call    _TestAck
+00C9	4089	mov     ra, a
+00CA	5089	sz      ra
+00CB	28C8	jmp     _L10
+				;96		}
+				;97		//update HT1635B 2 data
+				;98		iicStart();
+				_L23:
+00CF	205C	call    _iicStart
+				;99		iicWrite(SLAVEMCU2ADD);
+00D0	0FD4	mov     a, D4H
+00D1	207F	call    _iicWrite
+				;100		while(TestAck());
+				_L13:
+00D2	2072	call    _TestAck
+00D3	4089	mov     ra, a
+00D4	5089	sz      ra
+00D5	28D2	jmp     _L13
+				;101		iicWrite(SEND_DATA_COMMAND);
+00D6	0F80	mov     a, 80H
+00D7	207F	call    _iicWrite
+				;102		while(TestAck());
+				_L15:
+00D8	2072	call    _TestAck
+00D9	4089	mov     ra, a
+00DA	5089	sz      ra
+00DB	28D8	jmp     _L15
+				;103		iicWrite(0X00);
+00DC	0F00	mov     a, 0H
+00DD	207F	call    _iicWrite
+				;104		while(TestAck());
+				_L17:
+00DE	2072	call    _TestAck
+00DF	4089	mov     ra, a
+00E0	5089	sz      ra
+00E1	28DE	jmp     _L17
+				;105		for (counter = 1; counter < 80; counter=counter+2)
+00E2	0F01	mov     a, 1H
+00E3	4088	mov     counter[0], a
+00E4	28F3	jmp     _L18
+00F1	0F02	mov     a, 2H
+00F2	4388	addm    a, counter[0]
+				_L18:
+00F3	4708	mov     a, counter[0]
+00F4	4089	mov     ra, a
+00F5	0F4F	mov     a, 4FH
+00F6	4209	sub     a, ra
+00F7	3C0A	sz      C
+00F8	28E5	jmp     _L21
+00F9	0003	ret
+00FA	0000	nop
+00FB	0000	nop
+00FC	0000	nop
+00FD	0000	nop
+00FE	0000	nop
+00FF	0000	nop
+				;106		{
+				;107			iicWrite(LedDisplayHell0Table[counter]);
+				_L21:
+00E5	0F50	mov     a, 50H
+00E6	4309	add     a, ra
+00E7	0083	mov     MP1, a
+00E8	0F80	mov     a, 80H
+00E9	1F07	clr     TBLP
+00EA	1387	adcm    a, TBLP
+00EB	2350	call    L0350
+00EC	207F	call    _iicWrite
+				;108			while(TestAck());
 				_L20:
-00BB	2040	call    _TestAck
-00BC	4084	mov     ra, a
-00BD	5084	sz      ra
-00BE	28BB	jmp     _L20
-				;94		}
-				;95	}
-				;96	/***********************
-				;97	全亮
-				;98	**********/
-				;99	void updateDisplayAll(void){
-				;100		//Display all HT1635B 1
-				;101		iicStart();
-				;102		iicWrite(SLAVEMCU1ADD);
-				;103		while(TestAck());
-				;104		iicWrite(SEND_DATA_COMMAND);
-				;105		while(TestAck());
-				;106		iicWrite(0X00);
-				;107		while(TestAck());
-				;108		for (counter = 0; counter < 80; counter=counter+2)
-				;109		{
-				;110			iicWrite(0Xff);
-				;111			while(TestAck());
-				;112		}
-				;113		//Display all HT1635B 2
-				;114		iicStart();
-				;115		iicWrite(SLAVEMCU2ADD);
-				;116		while(TestAck());
-				;117		iicWrite(SEND_DATA_COMMAND);
-				;118		while(TestAck());
-				;119		iicWrite(0X00);
-				;120		while(TestAck());
-				;121		for (counter = 0; counter < 80; counter=counter+2)
-				;122		{
-				;123			iicWrite(0Xff);
-				;124			while(TestAck());
-				;125		}
-				;126		iicStop();
-				;127	}
-				;128	/***********************
-				;129	全滅
-				;130	
-				;131	**********/
-				;132	void updateDisplayoff(void){
-				;133		//Display off HT1635B 1
-				;134		iicStart();
-				;135		iicWrite(SLAVEMCU1ADD);
+00ED	2072	call    _TestAck
+00EE	4089	mov     ra, a
+00EF	5089	sz      ra
+00F0	28ED	jmp     _L20
+				;109		}
+				;110	}
+				;111	/***********************
+				;112	顯示HOLTEK
+				;113	
+				;114	**********/
+				;115	void _updateDisplayNormal(void){
+				;116		//update HT1635B 1 data
+				;117		iicStart();
+				__updateDisplayNormal:
+				__updateDisplayNormal:
+01DB	205C	call    _iicStart
+				;118		iicWrite(SLAVEMCU1ADD);
+01DC	0FD0	mov     a, D0H
+01DD	207F	call    _iicWrite
+				;119		while(TestAck());
+				_L27:
+01DE	2072	call    _TestAck
+01DF	4089	mov     ra, a
+01E0	5089	sz      ra
+01E1	29DE	jmp     _L27
+				;120		iicWrite(SEND_DATA_COMMAND);
+01E2	0F80	mov     a, 80H
+01E3	207F	call    _iicWrite
+				;121		while(TestAck());
+				_L29:
+01E4	2072	call    _TestAck
+01E5	4089	mov     ra, a
+01E6	5089	sz      ra
+01E7	29E4	jmp     _L29
+				;122		iicWrite(0X00);
+01E8	0F00	mov     a, 0H
+01E9	207F	call    _iicWrite
+				;123		while(TestAck());
+				_L31:
+01EA	2072	call    _TestAck
+01EB	4089	mov     ra, a
+01EC	5089	sz      ra
+01ED	29EA	jmp     _L31
+				;124		for (counter=0; counter < 80; counter=counter+2)
+01EE	5F08	clr     counter[0]
+				_L32:
+01EF	4708	mov     a, counter[0]
+01F0	4089	mov     ra, a
+01F1	0F4F	mov     a, 4FH
+01F2	4209	sub     a, ra
+01F3	380A	snz     C
+01F4	2A04	jmp     _L46
+0201	0F02	mov     a, 2H
+0202	4388	addm    a, counter[0]
+0203	29EF	jmp     _L32
+				;125		{
+				;126			iicWrite(LedDisplayNormalTable[counter]);
+01F5	0F00	mov     a, 0H
+01F6	4309	add     a, ra
+01F7	0083	mov     MP1, a
+01F8	0F80	mov     a, 80H
+01F9	1F07	clr     TBLP
+01FA	1387	adcm    a, TBLP
+01FB	2350	call    L0350
+01FC	207F	call    _iicWrite
+				;127			while(TestAck());
+				_L34:
+01FD	2072	call    _TestAck
+01FE	4089	mov     ra, a
+01FF	5089	sz      ra
+0200	29FD	jmp     _L34
+				;128		}
+				;129		//update HT1635B 2 data
+				;130		iicStart();
+				_L46:
+0204	205C	call    _iicStart
+				;131		iicWrite(SLAVEMCU2ADD);
+0205	0FD4	mov     a, D4H
+0206	207F	call    _iicWrite
+				;132		while(TestAck());
+				_L37:
+0207	2072	call    _TestAck
+0208	4089	mov     ra, a
+0209	5089	sz      ra
+020A	2A07	jmp     _L37
+				;133		iicWrite(SEND_DATA_COMMAND);
+020B	0F80	mov     a, 80H
+020C	207F	call    _iicWrite
+				;134		while(TestAck());
+				_L39:
+020D	2072	call    _TestAck
+020E	4089	mov     ra, a
+020F	5089	sz      ra
+0210	2A0D	jmp     _L39
+				;135		iicWrite(0X00);
+0211	0F00	mov     a, 0H
+0212	207F	call    _iicWrite
 				;136		while(TestAck());
-				;137		iicWrite(SEND_DATA_COMMAND);
-				;138		while(TestAck());
-				;139		iicWrite(0X00);
-				;140		while(TestAck());
-				;141		for (counter = 0; counter < 80; counter=counter+2)
-				;142		{
-				;143			iicWrite(0X00);
-				;144			while(TestAck());
-				;145		}
-				;146		//Display off HT1635B 2
-				;147		iicStart();
-				;148		iicWrite(SLAVEMCU1ADD);
-				;149		while(TestAck());
-				;150		iicWrite(SEND_DATA_COMMAND);
-				;151		while(TestAck());
-				;152		iicWrite(0X00);
-				;153		while(TestAck());
-				;154		for (counter = 0; counter < 80; counter=counter+2)
-				;155		{
-				;156			iicWrite(0X00);
-				;157			while(TestAck());
-				;158		}
-				;159	}
-				;160	
-				;161	
-				;162	
+				_L41:
+0213	2072	call    _TestAck
+0214	4089	mov     ra, a
+0215	5089	sz      ra
+0216	2A13	jmp     _L41
+				;137		for (counter = 1; counter < 80; counter=counter+2)
+0217	0F01	mov     a, 1H
+0218	4088	mov     counter[0], a
+0219	2A28	jmp     _L42
+0226	0F02	mov     a, 2H
+0227	4388	addm    a, counter[0]
+				_L42:
+0228	4708	mov     a, counter[0]
+0229	4089	mov     ra, a
+022A	0F4F	mov     a, 4FH
+022B	4209	sub     a, ra
+022C	3C0A	sz      C
+022D	2A1A	jmp     _L45
+022E	0003	ret
+				;138		{
+				;139			iicWrite(LedDisplayNormalTable[counter]);
+				_L45:
+021A	0F00	mov     a, 0H
+021B	4309	add     a, ra
+021C	0083	mov     MP1, a
+021D	0F80	mov     a, 80H
+021E	1F07	clr     TBLP
+021F	1387	adcm    a, TBLP
+0220	2350	call    L0350
+0221	207F	call    _iicWrite
+				;140			while(TestAck());
+				_L44:
+0222	2072	call    _TestAck
+0223	4089	mov     ra, a
+0224	5089	sz      ra
+0225	2A22	jmp     _L44
+				;141		}
+				;142	}
+				;143	/***********************
+				;144	全亮
+				;145	**********/
+				;146	void _updateDisplayAll(void){
+				;147		//Display all HT1635B 1
+				;148		iicStart();
+				__updateDisplayAll:
+				__updateDisplayAll:
+022F	205C	call    _iicStart
+				;149		iicWrite(SLAVEMCU1ADD);
+0230	0FD0	mov     a, D0H
+0231	207F	call    _iicWrite
+				;150		while(TestAck());
+				_L49:
+0232	2072	call    _TestAck
+0233	4089	mov     ra, a
+0234	5089	sz      ra
+0235	2A32	jmp     _L49
+				;151		iicWrite(SEND_DATA_COMMAND);
+0236	0F80	mov     a, 80H
+0237	207F	call    _iicWrite
+				;152		while(TestAck());
+				_L51:
+0238	2072	call    _TestAck
+0239	4089	mov     ra, a
+023A	5089	sz      ra
+023B	2A38	jmp     _L51
+				;153		iicWrite(0X00);
+023C	0F00	mov     a, 0H
+023D	207F	call    _iicWrite
+				;154		while(TestAck());
+				_L53:
+023E	2072	call    _TestAck
+023F	4089	mov     ra, a
+0240	5089	sz      ra
+0241	2A3E	jmp     _L53
+				;155		for (counter = 0; counter < 80; counter=counter+2)
+0242	5F08	clr     counter[0]
+				_L54:
+0243	0F4F	mov     a, 4FH
+0244	4208	sub     a, counter[0]
+0245	380A	snz     C
+0246	2A50	jmp     _L68
+024D	0F02	mov     a, 2H
+024E	4388	addm    a, counter[0]
+024F	2A43	jmp     _L54
+				;156		{
+				;157			iicWrite(0Xff);
+0247	0FFF	mov     a, FFH
+0248	207F	call    _iicWrite
+				;158			while(TestAck());
+				_L56:
+0249	2072	call    _TestAck
+024A	4089	mov     ra, a
+024B	5089	sz      ra
+024C	2A49	jmp     _L56
+				;159		}
+				;160		//Display all HT1635B 2
+				;161		iicStart();
+				_L68:
+0250	205C	call    _iicStart
+				;162		iicWrite(SLAVEMCU2ADD);
+0251	0FD4	mov     a, D4H
+0252	207F	call    _iicWrite
+				;163		while(TestAck());
+				_L59:
+0253	2072	call    _TestAck
+0254	4089	mov     ra, a
+0255	5089	sz      ra
+0256	2A53	jmp     _L59
+				;164		iicWrite(SEND_DATA_COMMAND);
+0257	0F80	mov     a, 80H
+0258	207F	call    _iicWrite
+				;165		while(TestAck());
+				_L61:
+0259	2072	call    _TestAck
+025A	4089	mov     ra, a
+025B	5089	sz      ra
+025C	2A59	jmp     _L61
+				;166		iicWrite(0X00);
+025D	0F00	mov     a, 0H
+025E	207F	call    _iicWrite
+				;167		while(TestAck());
+				_L63:
+025F	2072	call    _TestAck
+0260	4089	mov     ra, a
+0261	5089	sz      ra
+0262	2A5F	jmp     _L63
+				;168		for (counter = 0; counter < 80; counter=counter+2)
+0263	5F08	clr     counter[0]
+				_L64:
+0264	0F4F	mov     a, 4FH
+0265	4208	sub     a, counter[0]
+0266	380A	snz     C
+0267	2A71	jmp     _L69
+026E	0F02	mov     a, 2H
+026F	4388	addm    a, counter[0]
+0270	2A64	jmp     _L64
+				;169		{
+				;170			iicWrite(0Xff);
+0268	0FFF	mov     a, FFH
+0269	207F	call    _iicWrite
+				;171			while(TestAck());
+				_L66:
+026A	2072	call    _TestAck
+026B	4089	mov     ra, a
+026C	5089	sz      ra
+026D	2A6A	jmp     _L66
+				;172		}
+				;173		iicStop();
+				_L69:
+0271	2067	call    _iicStop
+0272	0003	ret
+				;174	}
+				;175	/***********************
+				;176	全滅
+				;177	
+				;178	**********/
+				;179	void _updateDisplayoff(void){
+				;180		//Display off HT1635B 1
+				;181		iicStart();
+				__updateDisplayoff:
+				__updateDisplayoff:
+0273	205C	call    _iicStart
+				;182		iicWrite(SLAVEMCU1ADD);
+0274	0FD0	mov     a, D0H
+0275	207F	call    _iicWrite
+				;183		while(TestAck());
+				_L73:
+0276	2072	call    _TestAck
+0277	4089	mov     ra, a
+0278	5089	sz      ra
+0279	2A76	jmp     _L73
+				;184		iicWrite(SEND_DATA_COMMAND);
+027A	0F80	mov     a, 80H
+027B	207F	call    _iicWrite
+				;185		while(TestAck());
+				_L75:
+027C	2072	call    _TestAck
+027D	4089	mov     ra, a
+027E	5089	sz      ra
+027F	2A7C	jmp     _L75
+				;186		iicWrite(0X00);
+0280	0F00	mov     a, 0H
+0281	207F	call    _iicWrite
+				;187		while(TestAck());
+				_L77:
+0282	2072	call    _TestAck
+0283	4089	mov     ra, a
+0284	5089	sz      ra
+0285	2A82	jmp     _L77
+				;188		for (counter = 0; counter < 80; counter=counter+2)
+0286	5F08	clr     counter[0]
+				_L78:
+0287	0F4F	mov     a, 4FH
+0288	4208	sub     a, counter[0]
+0289	380A	snz     C
+028A	2A94	jmp     _L92
+0291	0F02	mov     a, 2H
+0292	4388	addm    a, counter[0]
+0293	2A87	jmp     _L78
+				;189		{
+				;190			iicWrite(0X00);
+028B	0F00	mov     a, 0H
+028C	207F	call    _iicWrite
+				;191			while(TestAck());
+				_L80:
+028D	2072	call    _TestAck
+028E	4089	mov     ra, a
+028F	5089	sz      ra
+0290	2A8D	jmp     _L80
+				;192		}
+				;193		//Display off HT1635B 2
+				;194		iicStart();
+				_L92:
+0294	205C	call    _iicStart
+				;195		iicWrite(SLAVEMCU1ADD);
+0295	0FD0	mov     a, D0H
+0296	207F	call    _iicWrite
+				;196		while(TestAck());
+				_L83:
+0297	2072	call    _TestAck
+0298	4089	mov     ra, a
+0299	5089	sz      ra
+029A	2A97	jmp     _L83
+				;197		iicWrite(SEND_DATA_COMMAND);
+029B	0F80	mov     a, 80H
+029C	207F	call    _iicWrite
+				;198		while(TestAck());
+				_L85:
+029D	2072	call    _TestAck
+029E	4089	mov     ra, a
+029F	5089	sz      ra
+02A0	2A9D	jmp     _L85
+				;199		iicWrite(0X00);
+02A1	0F00	mov     a, 0H
+02A2	207F	call    _iicWrite
+				;200		while(TestAck());
+				_L87:
+02A3	2072	call    _TestAck
+02A4	4089	mov     ra, a
+02A5	5089	sz      ra
+02A6	2AA3	jmp     _L87
+				;201		for (counter = 0; counter < 80; counter=counter+2)
+02A7	5F08	clr     counter[0]
+02A8	2AB1	jmp     _L88
+02AF	0F02	mov     a, 2H
+02B0	4388	addm    a, counter[0]
+				_L88:
+02B1	0F4F	mov     a, 4FH
+02B2	4208	sub     a, counter[0]
+02B3	3C0A	sz      C
+02B4	2AA9	jmp     _L91
+02B5	0003	ret
+				;202		{
+				;203			iicWrite(0X00);
+				_L91:
+02A9	0F00	mov     a, 0H
+02AA	207F	call    _iicWrite
+				;204			while(TestAck());
+				_L90:
+02AB	2072	call    _TestAck
+02AC	4089	mov     ra, a
+02AD	5089	sz      ra
+02AE	2AAB	jmp     _L90
+				;205		}
+				;206	}
+				;207	
+				;208	
+				;209	
+				;file E:\Doing\啟德電子\DriveHT1635Led\source\sysinit.c
+				;1	//___________________________________________________________________
+				;2	//___________________________________________________________________
+				;3	//Copyright :    2015 by HOLTEK SEMICONDUCTOR INC
+				;4	//File Name :    sysinit.c
+				;5	//Targer :       
+				;6	//MCU :          HT68F40
+				;7	//Version :      V00
+				;8	//Author :       ChenTing
+				;9	//Date :         2015/05/18
+				;10	//Description :  config system
+				;11	//History : 
+				;12	//___________________________________________________________________
+				;13	//___________________________________________________________________
+				;14	#include "config.h"
+				;15	
+				;16	
+				;17	
+				;18	
+				;19	unsigned char counter10ms;
+				;20	unsigned int  counter3s;
+				;21	extern unsigned char  keyCount;
+				;22	
+				;23	void _clearRam(void){
+				;24		_bp &= 0b11100000;
+				__clearRam:
+				__clearRam:
+02B6	0FE0	mov     a, E0H
+02B7	0684	andm    a, BP
+				;25		_mp1 = 0x80;
+02B8	0F80	mov     a, 80H
+02B9	0083	mov     MP1, a
+				;26		while((_bp & 0b00011111) <2)
+02BA	2AC5	jmp     _L2
+				_L2:
+02C5	0704	mov     a, BP
+02C6	0E1F	and     a, 1FH
+02C7	408A	mov     rb, a
+02C8	5F0B	clr     rc
+02C9	0F01	mov     a, 1H
+02CA	420A	sub     a, rb
+02CB	0F00	mov     a, 0H
+02CC	520B	sbc     a, rc
+02CD	1185	swap    ACC
+02CE	040A	xor     a, STATUS
+02CF	3985	snz     ACC.3
+02D0	2ABB	jmp     _L5
+02D1	0003	ret
+				;27		{
+				;28			for(_tblp = 0x00;_tblp < 128;_tblp++)
+				_L5:
+02BB	1F07	clr     TBLP
+				_L3:
+02BC	3F87	sz      TBLP.7
+02BD	2AC2	jmp     _L7
+02C0	1487	inc     TBLP
+02C1	2ABC	jmp     _L3
+				;29			{
+				;30				 _iar1 = 0;
+02BE	1F02	clr     __iar1[0]
+				;31				  _mp1++;
+02BF	1483	inc     MP1
+				;32			}
+				;33			_mp1 = 0x80;		
+				_L7:
+02C2	0F80	mov     a, 80H
+02C3	0083	mov     MP1, a
+				;34			_bp++;
+02C4	1484	inc     BP
+				;35		}
+				;36	
+				;37		}
+				;38	
+				;39	void _reset_init(void){
+				;40		_sysinit();
+				;41		}
+				;42	
+				;43	//
+				;44	void _sysinit(void){
+				;45	//IO
+				;46		_pac=0;
+				__sysinit:
+				__sysinit:
+02D2	1F1B	clr     PAC
+				;47		_pa=0;
+02D3	1F1A	clr     PA
+				;48		_papu=0xff;
+02D4	1F99	set     PAPU
+				;49		_pawu=1;
+02D5	0F01	mov     a, 1H
+02D6	0098	mov     PAWU, a
+				;50		
+				;51		_pbc=0;
+02D7	1F1E	clr     PBC
+				;52		_pb=0;
+02D8	1F1D	clr     PB
+				;53		_pbpu=0xff;
+02D9	1F9C	set     PBPU
+				;54		
+				;55		_pcc=0;
+02DA	1F21	clr     PCC
+				;56		_pc=0;
+02DB	1F20	clr     PC
+				;57		_pcpu=0xff;
+02DC	1F9F	set     PCPU
+				;58		
+				;59		_pdc=0;
+02DD	1F24	clr     PDC
+				;60		_pd=0;
+02DE	1F23	clr     PD
+				;61		_pdpu=0xff;
+02DF	1FA2	set     PDPU
+				;62		
+				;63		_pec=0;
+02E0	1F27	clr     PEC
+				;64		_pe=0;
+02E1	1F26	clr     PE
+				;65		_pepu=0xff;
+02E2	1FA5	set     PEPU
+				;66		
+				;67		_pfc=0;
+02E3	1F2A	clr     PFC
+				;68		_pf=0;
+02E4	1F29	clr     PF
+				;69		_pfpu=0xff;	
+02E5	1FA8	set     PFPU
+				;70		
+				;71	//cp
+				;72		_cp0c=0;
+02E6	1F34	clr     CP0C
+				;73		_cp1c=0;	
+02E7	1F35	clr     CP1C
+				;74	//Timer
+				;75		_tm0c0=0x00;
+02E8	1F3A	clr     TM0C0
+				;76		_tm0c1=0xc0;
+02E9	0FC0	mov     a, C0H
+02EA	00BB	mov     TM0C1, a
+				;77		_tm0al=0xe8;
+02EB	0FE8	mov     a, E8H
+02EC	00BE	mov     TM0AL, a
+				;78		_tm0ah=0x03;
+02ED	0F03	mov     a, 3H
+02EE	00BF	mov     TM0AH, a
+				;79		_mf0f=0;
+02EF	3691	clr     MF0F
+				;80		_mf0e=1;
+02F0	3091	set     MF0E
+				;81		_t0pe=1;
+02F1	3014	set     T0PE
+				;82		_t0pf=0;
+02F2	3614	clr     T0PF
+				;83		_emi=1;
+02F3	3010	set     EMI
+				;84		_t0on=1;
+02F4	31BA	set     T0ON
+				;85	//Ram
+				;86		counter10ms=10;
+02F5	0F0A	mov     a, AH
+02F6	4085	mov     counter10ms[0], a
+				;87		counter3s=300;
+02F7	0F2C	mov     a, 2CH
+02F8	4083	mov     counter3s[0], a
+02F9	0F01	mov     a, 1H
+02FA	4084	mov     counter3s[1], a
+				;88		flag_10ms=0;
+02FB	7507	clr     flag_byte0[0].2
+				;89		flag_keypush=0;
+02FC	7407	clr     flag_byte0[0].0
+				;90		keyCount=0;
+02FD	5F06	clr     keyCount[0]
+02FE	0003	ret
+				;91		}
+				;92		
+				;93	DEFINE_ISR(timer0, 0x14){
+				@timer0_code .SECTION 'CODE'
+0014	408C	mov     r114, a
+0015	0704	mov     a, BP
+0016	408D	mov     r214, a
+0017	2AFF	jmp     _timer0
+				_timer0:
+				_timer0:
+02FF	070A	mov     a, STATUS
+0300	408E	mov     r314, a
+				;94		counter10ms--;
+0301	5505	deca    counter10ms[0]
+0302	408F	mov     ra14, a
+0303	470F	mov     a, ra14
+0304	4085	mov     counter10ms[0], a
+				;95		if(counter10ms==0){
+0305	508F	sz      ra14
+0306	2B1D	jmp     _L10
+				;96			flag_10ms=1;
+0307	7107	set     flag_byte0[0].2
+				;97			counter10ms=10;
+0308	0F0A	mov     a, AH
+0309	4085	mov     counter10ms[0], a
+				;98			
+				;99			counter3s--;
+030A	0FFF	mov     a, FFH
+030B	4303	add     a, counter3s[0]
+030C	4090	mov     rb14, a
+030D	0FFF	mov     a, FFH
+030E	5304	adc     a, counter3s[1]
+030F	4091	mov     rc14, a
+0310	4710	mov     a, rb14
+0311	4083	mov     counter3s[0], a
+0312	4711	mov     a, rc14
+0313	4084	mov     counter3s[1], a
+				;100			if(counter3s==0)
+0314	4710	mov     a, rb14
+0315	4511	or      a, rc14
+0316	390A	snz     Z
+0317	2B19	jmp     _L12
+				;101				flag_3s=1;
+0318	7087	set     flag_byte0[0].1
+				;102				counter3s=300;
+				_L12:
+0319	0F2C	mov     a, 2CH
+031A	4083	mov     counter3s[0], a
+031B	0F01	mov     a, 1H
+031C	4084	mov     counter3s[1], a
+				_L10:
+031D	470D	mov     a, r214
+031E	0084	mov     BP, a
+031F	470E	mov     a, r314
+0320	008A	mov     STATUS, a
+0321	470C	mov     a, r114
+0322	0004	reti
+				;103			}
+				;104	
+				;105		}
 				;file E:\Doing\啟德電子\DriveHT1635Led\source\IIC.c
 				;1	//___________________________________________________________________
 				;2	//___________________________________________________________________
@@ -560,7 +1284,7 @@
 				;11	//History : 
 				;12	//___________________________________________________________________
 				;13	//___________________________________________________________________
-				;14	#include "IIC.h"
+				;14	#include "config.h"
 				;15	
 				;16	
 				;17	
@@ -571,41 +1295,41 @@
 				;22	{
 				_iicSendCommand:
 				_iicSendCommand:
-005C	4089	mov     address[0], a
+008E	4096	mov     address[0], a
 				;23		iicStart();
-005D	202A	call    _iicStart
+008F	205C	call    _iicStart
 				;24		iicWrite(address);
-005E	4709	mov     a, address[0]
-005F	204D	call    _iicWrite
+0090	4716	mov     a, address[0]
+0091	207F	call    _iicWrite
 				;25		while(TestAck());
-				L0060:
-0060	2040	call    _TestAck
-0061	4084	mov     ra, a
-0062	5084	sz      ra
-0063	2860	jmp     L0060
+				L0092:
+0092	2072	call    _TestAck
+0093	4089	mov     ra, a
+0094	5089	sz      ra
+0095	2892	jmp     L0092
 				;26		iicWrite(command);
-0064	4707	mov     a, command[0]
-0065	204D	call    _iicWrite
+0096	4714	mov     a, command[0]
+0097	207F	call    _iicWrite
 				;27		while(TestAck());
-				L0066:
-0066	2040	call    _TestAck
-0067	4084	mov     ra, a
-0068	5084	sz      ra
-0069	2866	jmp     L0066
+				L0098:
+0098	2072	call    _TestAck
+0099	4089	mov     ra, a
+009A	5089	sz      ra
+009B	2898	jmp     L0098
 				;28		iicWrite(commandData);
-006A	4708	mov     a, commandData[0]
-006B	4084	mov     ra, a
-006C	4704	mov     a, ra
-006D	204D	call    _iicWrite
+009C	4715	mov     a, commandData[0]
+009D	4089	mov     ra, a
+009E	4709	mov     a, ra
+009F	207F	call    _iicWrite
 				;29		while(TestAck());
-				L006E:
-006E	2040	call    _TestAck
-006F	4084	mov     ra, a
-0070	5084	sz      ra
-0071	286E	jmp     L006E
+				L00A0:
+00A0	2072	call    _TestAck
+00A1	4089	mov     ra, a
+00A2	5089	sz      ra
+00A3	28A0	jmp     L00A0
 				;30		iicStop();
-0072	2035	call    _iicStop
-0073	0003	ret
+00A4	2067	call    _iicStop
+00A5	0003	ret
 				;31	}
 				;32	
 				;33	/**********************************
@@ -616,22 +1340,22 @@
 				;38		SDAC=0;//設定SDA腳為輸出
 				_iicStart:
 				_iicStart:
-002A	341B	clr     PAC0
+005C	341B	clr     PAC0
 				;39		SCLC=0;//速度SCL腳為輸出
-002B	349B	clr     PAC1
+005D	349B	clr     PAC1
 				;40		SDA=1;_delay();//SDA=1
-002C	301A	set     PA0
-002D	2021	call    __delay
+005E	301A	set     PA0
+005F	2053	call    __delay
 				;41		SCL=1;_delay();//SCL=1
-002E	309A	set     PA1
-002F	2021	call    __delay
+0060	309A	set     PA1
+0061	2053	call    __delay
 				;42		SDA=0;_delay();//SDA=0
-0030	341A	clr     PA0
-0031	2021	call    __delay
+0062	341A	clr     PA0
+0063	2053	call    __delay
 				;43		SCL=0;_delay();//SCL=0	
-0032	349A	clr     PA1
-0033	2021	call    __delay
-0034	0003	ret
+0064	349A	clr     PA1
+0065	2053	call    __delay
+0066	0003	ret
 				;44	}
 				;45	
 				;46	/**********************************
@@ -642,22 +1366,22 @@
 				;51		SDAC=0;//設定SDA腳為輸出
 				_iicStop:
 				_iicStop:
-0035	341B	clr     PAC0
+0067	341B	clr     PAC0
 				;52		SCLC=0;//速度SCL腳為輸出
-0036	349B	clr     PAC1
+0068	349B	clr     PAC1
 				;53		SDA=0;_delay();//SDA=0
-0037	341A	clr     PA0
-0038	2021	call    __delay
+0069	341A	clr     PA0
+006A	2053	call    __delay
 				;54		SCL=1;_delay();//SCL=1
-0039	309A	set     PA1
-003A	2021	call    __delay
+006B	309A	set     PA1
+006C	2053	call    __delay
 				;55		SDA=1;_delay();//SDA=1
-003B	301A	set     PA0
-003C	2021	call    __delay
+006D	301A	set     PA0
+006E	2053	call    __delay
 				;56		SCL=0;_delay();//SCL=0
-003D	349A	clr     PA1
-003E	2021	call    __delay
-003F	0003	ret
+006F	349A	clr     PA1
+0070	2053	call    __delay
+0071	0003	ret
 				;57			
 				;58	}
 				;59	//**********************************
@@ -694,27 +1418,27 @@
 				;90		SDAC=1;//設定SDA腳為輸入
 				_TestAck:
 				_TestAck:
-0040	301B	set     PAC0
+0072	301B	set     PAC0
 				;91		SCLC=0;//速度SCL腳為輸出
-0041	349B	clr     PAC1
+0073	349B	clr     PAC1
 				;92		//SDA=1;_delay();//SDA=1
 				;93		SCL=1;_delay();//SCL=1
-0042	309A	set     PA1
-0043	2021	call    __delay
+0074	309A	set     PA1
+0075	2053	call    __delay
 				;94		Ack_Bit=SDA;_delay();//讀取回傳確認ACK
-0044	071A	mov     a, PA
-0045	0E01	and     a, 1H
-0046	4085	mov     Data, a
-0047	2021	call    __delay
+0076	071A	mov     a, PA
+0077	0E01	and     a, 1H
+0078	4092	mov     Data, a
+0079	2053	call    __delay
 				;95		SCL=0;_delay();//SCL=0
-0048	349A	clr     PA1
-0049	2021	call    __delay
+007A	349A	clr     PA1
+007B	2053	call    __delay
 				;96		SDAC=0;
-004A	341B	clr     PAC0
+007C	341B	clr     PAC0
 				;97		return Ack_Bit;
 				;98	}
-004B	4705	mov     a, Data
-004C	0003	ret
+007D	4712	mov     a, Data
+007E	0003	ret
 				;99	//**********************************
 				;100	//主機將資料以串列方式發射出去
 				;101	//**********************************
@@ -722,32 +1446,32 @@
 				;103	{
 				_iicWrite:
 				_iicWrite:
-004D	4085	mov     Data[0], a
+007F	4092	mov     Data[0], a
 				;104		unsigned char count=8;
 				;105		SDAC=0;//設定SDA腳為輸出
-004E	341B	clr     PAC0
+0080	341B	clr     PAC0
 				;106		SCLC=0;//速度SCL腳為輸出
-004F	349B	clr     PAC1
+0081	349B	clr     PAC1
 				;107		while(count--)
-0050	0F09	mov     a, 9H
-0051	4086	mov     Data[1], a
-0052	2859	jmp     L0059
+0082	0F09	mov     a, 9H
+0083	4093	mov     Data[1], a
+0084	288B	jmp     L008B
 				;108		{
 				;109			SDA=(Data & 0x80);//取出資料的bit7送到SDA腳
-				L0053:
-0053	341A	clr     PA0
+				L0085:
+0085	341A	clr     PA0
 				;110			_delay();
-0054	2021	call    __delay
+0086	2053	call    __delay
 				;111			SCL=1;_delay();//送出i2c時鐘脈沖
-0055	309A	set     PA1
-0056	2021	call    __delay
+0087	309A	set     PA1
+0088	2053	call    __delay
 				;112			SCL=0;_delay();
-0057	349A	clr     PA1
-0058	2021	call    __delay
-				L0059:
-0059	5786	sdz     Data[1]
-005A	2853	jmp     L0053
-005B	0003	ret
+0089	349A	clr     PA1
+008A	2053	call    __delay
+				L008B:
+008B	5793	sdz     Data[1]
+008C	2885	jmp     L0085
+008D	0003	ret
 				;113			Data=Data<<1;//資料左移一位
 				;114		}
 				;115	}
@@ -773,96 +1497,195 @@
 				__delay:
 				__delay:
 				@dummy .SECTION 'CODE'
-0021	0000	nop
+0053	0000	nop
 				;135		GCC_NOP();
-0022	0000	nop
+0054	0000	nop
 				;136		GCC_NOP();
-0023	0000	nop
+0055	0000	nop
 				;137		GCC_NOP();
-0024	0000	nop
+0056	0000	nop
 				;138		GCC_NOP();
-0025	0000	nop
+0057	0000	nop
 				;139		GCC_CLRWDT();
-0026	0001	clr     wdt
+0058	0001	clr     wdt
 				;140		GCC_CLRWDT1();
-0027	0001	clr     wdt
+0059	0001	clr     wdt
 				;141		GCC_CLRWDT2();
-0028	0005	clr     wdt2
-0029	0003	ret
+005A	0005	clr     wdt2
+005B	0003	ret
 				;142	}
 				;143	
 				;144	
 				;145	
 				;146	
 				;file E:\Doing\啟德電子\DriveHT1635Led\source\funscankey.c
-				;1	#include "funscankey.h"
+				;1	#include "config.h"
 				;2	
 				;3	unsigned char keyCount;
 				;4	
-				;5	unsigned char fun_scan_key(void){
-				;6		KEYC=0;
+				;5	extern unsigned char modecount;
+				;6	extern unsigned char displayState;
+				;7	
+				;8	void fun_scan_key(void){
+				;9		KEYC=1;//key input mode
 				_fun_scan_key:
 				_fun_scan_key:
-00C8	369B	clr     PAC5
-				;7		if (KEY==0)
-00C9	3E9A	sz      PA5
-00CA	28D6	jmp     _L2
-				;8		{
-				;9			keyCount++;
-00CB	5400	inca    keyCount[0]
-00CC	4084	mov     ra, a
-00CD	4704	mov     a, ra
-00CE	4080	mov     keyCount[0], a
-				;10			if(keyCount==5)
-00CF	4704	mov     a, ra
-00D0	0A05	sub     a, 5H
-00D1	390A	snz     Z
-00D2	28D8	jmp     _L1
-				;11			{
-				;12				return 1;
-00D3	0F01	mov     a, 1H
-00D4	4084	mov     ra, a
-00D5	28D8	jmp     _L1
-				;13			}
-				;14		}
-				;15		else
-				;16		{
-				;17			keyCount=0;
+0323	329B	set     PAC5
+				;10		if (KEY==0)
+0324	3E9A	sz      PA5
+0325	2B2F	jmp     _L2
+				;11		{
+				;12			keyCount++;
+0326	5406	inca    keyCount[0]
+0327	4089	mov     ra, a
+0328	4709	mov     a, ra
+0329	4086	mov     keyCount[0], a
+				;13			if(keyCount==5)
+032A	4709	mov     a, ra
+032B	0A05	sub     a, 5H
+032C	390A	snz     Z
+032D	2B30	jmp     _L1
+				;14			{
+				;15				flag_keypush=1;
+032E	7007	set     flag_byte0[0].0
+				;16				keyCount=0;
+				;17			}
+				;18		}
+				;19		else
+				;20		{
+				;21			keyCount=0;
 				_L2:
-00D6	5F00	clr     keyCount[0]
-				;18			return 0;
-00D7	5F04	clr     ra
-				;19		}	
-				;20	}
+032F	5F06	clr     keyCount[0]
 				_L1:
-00D8	4704	mov     a, ra
-00D9	0003	ret
-00DA	1483	inc     MP1
-				L00DB:
-00DB	3F87	sz      TBLP.7
-00DC	28E1	jmp     L00E1
-00DD	0707	mov     a, TBLP
-00DE	0084	mov     BP, a
-00DF	0702	mov     a, [02H]
-00E0	0003	ret
-				L00E1:
-00E1	0703	mov     a, MP1
-00E2	2900	jmp     L0100
-				org	0100h
-				;21	
-				;22	
-				;23	
+0330	0003	ret
+				;22		}	
+				;23	}
 				;24	
+				;25	
+				;26	void fun_task_key(void){
+				;27		if(flag_keypush==1){
+				_fun_task_key:
+				_fun_task_key:
+0331	7807	snz     flag_byte0[0].0
+0332	2B4E	jmp     _L5
+				;28			flag_keypush=0;
+0333	7407	clr     flag_byte0[0].0
+				;29			switch(displayState){
+0334	4701	mov     a, displayState[0]
+0335	0A00	sub     a, 0H
+0336	3D0A	sz      Z
+0337	2B46	jmp     _L7
+0338	0A01	sub     a, 1H
+0339	3D0A	sz      Z
+033A	2B49	jmp     _L8
+033B	4701	mov     a, displayState[0]
+033C	0A03	sub     a, 3H
+033D	3D0A	sz      Z
+033E	2B4C	jmp     _L9
+033F	4701	mov     a, displayState[0]
+0340	0A04	sub     a, 4H
+0341	390A	snz     Z
+0342	2B4E	jmp     _L5
+				;30				case displayState_Hello:
+				;31					displayState=displayState_All;
+				_L7:
+0346	0F01	mov     a, 1H
+0347	4081	mov     displayState[0], a
+				;32					break;
+0348	2B4E	jmp     _L5
+				;33				case displayState_All:
+				;34					displayState=displayState_Bink0;
+				_L8:
+0349	0F03	mov     a, 3H
+034A	4081	mov     displayState[0], a
+				;35					break;
+034B	2B4E	jmp     _L5
+				;36				case displayState_Bink0:
+				;37					displayState=displayState_Bink1;
+				_L9:
+034C	0F04	mov     a, 4H
+034D	4081	mov     displayState[0], a
+				_L5:
+034E	0003	ret
+034F	1483	inc     MP1
+				L0350:
+0350	3F87	sz      TBLP.7
+0351	2B56	jmp     L0356
+0352	0707	mov     a, TBLP
+0353	0084	mov     BP, a
+0354	0702	mov     a, __iar1[0]
+0355	0003	ret
+				L0356:
+0356	0703	mov     a, MP1
+0357	2900	jmp     L0100
+				;38					break;
+				;39				case displayState_Bink1:
+				;40					displayState=displayState_Normal;
+0343	0F05	mov     a, 5H
+0344	4081	mov     displayState[0], a
+				;41					break;
+0345	2B4E	jmp     _L5
+				;42				default:
+				;43					break;
+				;44			}
+				;45		}	
+				;46	}
+				;47	
+				;48	
+				;49	
 				data .SECTION 'DATA'
+				__iar1 DB DUP (?) ; __iar1
+				__mp1 DB DUP (?) ; __mp1
+				__bp DB DUP (?) ; __bp
+				__tblp DB DUP (?) ; __tblp
 				__status DB DUP (?) ; __status
+				__intc0 DB DUP (?) ; __intc0
+				__intc1 DB DUP (?) ; __intc1
+				__mfi0 DB DUP (?) ; __mfi0
+				__pawu DB DUP (?) ; __pawu
+				__papu DB DUP (?) ; __papu
 				__pa DB DUP (?) ; __pa
 				__pac DB DUP (?) ; __pac
+				__pbpu DB DUP (?) ; __pbpu
+				__pb DB DUP (?) ; __pb
+				__pbc DB DUP (?) ; __pbc
+				__pcpu DB DUP (?) ; __pcpu
+				__pc DB DUP (?) ; __pc
+				__pcc DB DUP (?) ; __pcc
+				__pdpu DB DUP (?) ; __pdpu
+				__pd DB DUP (?) ; __pd
+				__pdc DB DUP (?) ; __pdc
+				__pepu DB DUP (?) ; __pepu
+				__pe DB DUP (?) ; __pe
+				__pec DB DUP (?) ; __pec
+				__pfpu DB DUP (?) ; __pfpu
+				__pf DB DUP (?) ; __pf
+				__pfc DB DUP (?) ; __pfc
+				__cp0c DB DUP (?) ; __cp0c
+				__cp1c DB DUP (?) ; __cp1c
+				__tm0c0 DB DUP (?) ; __tm0c0
+				__tm0c1 DB DUP (?) ; __tm0c1
+				__tm0al DB DUP (?) ; __tm0al
+				__tm0ah DB DUP (?) ; __tm0ah
+				BinklState DB DUP (?) ; BinklState
+				displayState DB DUP (?) ; displayState
+				modecount DB DUP (?) ; modecount
+				counter3s DB 2 DUP (?) ; counter3s
+				counter10ms DB DUP (?) ; counter10ms
 				keyCount DB DUP (?) ; keyCount
-				flag_10ms DB DUP (?) ; flag_10ms
-				poweron DB DUP (?) ; poweron
+				flag_byte0 DB DUP (?) ; flag_byte0
 				counter DB DUP (?) ; counter
 				ra DB DUP (?)
+				rb DB DUP (?)
+				rc DB DUP (?)
+				r114 DB DUP (?)
+				r214 DB DUP (?)
+				r314 DB DUP (?)
+				ra14 DB DUP (?)
+				rb14 DB DUP (?)
+				rc14 DB DUP (?)
 				Data DB DUP (?) ; Data
 				command DB DUP (?) ; command
 				commandData DB DUP (?) ; commandData
 				address DB DUP (?) ; address
+				_main_2 DB DUP (?)
