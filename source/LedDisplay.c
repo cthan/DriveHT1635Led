@@ -77,6 +77,8 @@ void _init_led(void){
  *************************/
 void _updateDisplayBlink(void){
 	_updateDisplayAll();	
+	iicSendCommand( SLAVEMCU1ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
+	iicSendCommand( SLAVEMCU2ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
 	iicSendCommand( SLAVEMCU1ADD , BLINK_FRQ_COMMAND , BLINK_1HZ );
 	iicSendCommand( SLAVEMCU2ADD , BLINK_FRQ_COMMAND , BLINK_1HZ );
 }
@@ -86,6 +88,8 @@ void _updateDisplayBlink(void){
  &@返回 無
  *************************/
 void _updateDisplayHello(void){
+	iicSendCommand( SLAVEMCU1ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
+	iicSendCommand( SLAVEMCU2ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
 	iicSendCommand( SLAVEMCU1ADD , BLINK_FRQ_COMMAND  , BLINK_OFF);
 	iicSendCommand( SLAVEMCU2ADD , BLINK_FRQ_COMMAND  , BLINK_OFF);
 //update HT1635B 1 data
@@ -155,6 +159,8 @@ void _updateDisplayHello(void){
 
 **********/
 void _updateDisplayNormal(void){
+	iicSendCommand( SLAVEMCU1ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
+	iicSendCommand( SLAVEMCU2ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
 	iicSendCommand( SLAVEMCU1ADD , BLINK_FRQ_COMMAND  , BLINK_OFF);
 	iicSendCommand( SLAVEMCU2ADD , BLINK_FRQ_COMMAND  , BLINK_OFF);
 //update HT1635B 1 data
@@ -221,36 +227,38 @@ void _updateDisplayNormal(void){
 全亮
 **********/
 void _updateDisplayAll(void){
+	iicSendCommand( SLAVEMCU1ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
+	iicSendCommand( SLAVEMCU2ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
 	iicSendCommand( SLAVEMCU1ADD , BLINK_FRQ_COMMAND  , BLINK_OFF);
 	iicSendCommand( SLAVEMCU2ADD , BLINK_FRQ_COMMAND  , BLINK_OFF);
 //Display all HT1635B 1
-	iicStart();
-	//發送HT1635B 1 IIC地址
-	iicWrite(SLAVEMCU1ADD);
-	if (TestAck()==1){
-		iicStop();
-		return;
-	}
-	//發送寫數據命令
-	iicWrite(SEND_DATA_COMMAND);
-	if (TestAck()==1){
-		iicStop();
-		return;
-	}
-	//發送寫入起始地址
-	iicWrite(0X00);
-	if (TestAck()==1){
-		iicStop();
-		return;
-	}
-	//循環寫入HT1635B 1的數據
-	for (counter = 0; counter < 44; counter++){
-		iicWrite(0Xff);
-		if (TestAck()==1){
-			iicStop();
-			return;
-		}
-	}
+//	iicStart();
+//	//發送HT1635B 1 IIC地址
+//	iicWrite(SLAVEMCU1ADD);
+//	if (TestAck()==1){
+//		iicStop();
+//		return;
+//	}
+//	//發送寫數據命令
+//	iicWrite(SEND_DATA_COMMAND);
+//	if (TestAck()==1){
+//		iicStop();
+//		return;
+//	}
+//	//發送寫入起始地址
+//	iicWrite(0X00);
+//	if (TestAck()==1){
+//		iicStop();
+//		return;
+//	}
+//	//循環寫入HT1635B 1的數據
+//	for (counter = 0; counter < 44; counter++){
+//		iicWrite(0Xff);
+//		if (TestAck()==1){
+//			iicStop();
+//			return;
+//		}
+//	}
 	//Display all HT1635B 2
 	iicStart();
 	//發送HT1635B 2 IIC地址
@@ -280,12 +288,42 @@ void _updateDisplayAll(void){
 		}
 	}
 	iicStop();
+	iicStart();
+	//發送HT1635B 1 IIC地址
+	iicWrite(SLAVEMCU1ADD);
+	if (TestAck()==1){
+		iicStop();
+		return;
+	}
+	//發送寫數據命令
+	iicWrite(SEND_DATA_COMMAND);
+	if (TestAck()==1){
+		iicStop();
+		return;
+	}
+	//發送寫入起始地址
+	iicWrite(0X00);
+	if (TestAck()==1){
+		iicStop();
+		return;
+	}
+	//循環寫入HT1635B 1的數據
+	for (counter = 0; counter < 44; counter++){
+		iicWrite(0Xff);
+		if (TestAck()==1){
+			iicStop();
+			return;
+		}
+	}
+	iicStop();
 }
 /***********************
 全滅
 
 **********/
 void _updateDisplayoff(void){
+	iicSendCommand( SLAVEMCU1ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
+	iicSendCommand( SLAVEMCU2ADD , SYS_SET_COMMAND  , SYS_EN_LED_ON);
 	iicSendCommand( SLAVEMCU1ADD , BLINK_FRQ_COMMAND  , BLINK_OFF);
 	iicSendCommand( SLAVEMCU2ADD , BLINK_FRQ_COMMAND  , BLINK_OFF);
 	//Display off HT1635B 1

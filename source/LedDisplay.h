@@ -50,8 +50,11 @@ void _updateDisplayNormal(void);
 #define DRIVE_OUT_COMMAMND	0x88
 #define DRIVE_TYPE_NMOS		0x00	//power on status
 #define DRIVE_TYPE_PMOS		0x01
+//#define DRIVE_TYPE_DEFAULT1	DRIVE_TYPE_NMOS
+//#define DRIVE_TYPE_DEFAULT2	DRIVE_TYPE_NMOS		//±Ò¼w¹q¤l
+
 #define DRIVE_TYPE_DEFAULT1	DRIVE_TYPE_PMOS
-#define DRIVE_TYPE_DEFAULT2	DRIVE_TYPE_PMOS
+#define DRIVE_TYPE_DEFAULT2	DRIVE_TYPE_PMOS	//TEST BORAD
 //Cascade config
 #define CASCADE_COMMAND		0xA0
 #define MASTER_OSC_SINGLE 	0x04	//power on status
@@ -79,8 +82,8 @@ void _updateDisplayNormal(void);
 #define ROW_PULSE_14_16		0x0d
 #define ROW_PULSE_15_16		0x0e
 #define ROW_PULSE_16_16		0x0f	//power on status
-#define PWM_DUTY_DEFAULT1	ROW_PULSE_16_16
-#define PWM_DUTY_DEFAULT2	ROW_PULSE_16_16
+#define PWM_DUTY_DEFAULT1	ROW_PULSE_10_16
+#define PWM_DUTY_DEFAULT2	ROW_PULSE_10_16
 
 
 
